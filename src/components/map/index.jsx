@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { HexGrid, Layout, Hexagon, Text, HexUtils } from "react-hexgrid";
+import { HexGrid, Layout, Hexagon, HexUtils } from "react-hexgrid";
+import ModalHeader from "react-bootstrap/esm/ModalHeader";
+import { Modal, ModalFooter, ModalTitle } from "react-bootstrap";
+import Button from 'react-bootstrap/Button';
 import "./index.css";
 
 import { data } from "./sample.json";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 /* the Map function contains the layout of the hexagons, 
   individual hexagons are built from sample.json data which 
@@ -25,21 +29,41 @@ function StyledHex(props) {
   return <Hexagon {...props} />;
 }
 
+// function ConfirmModal(props){
+//   <Modal show={props.show} onHide={props.onHide} aria-labelledby="contained-modal-title-vcenter" centered>
+//     <ModalHeader closeButton>
+//       <ModalTitle>Confirm on what you clicked?</ModalTitle>
+//     </ModalHeader>
+//     <ModalFooter>
+//       <Button variant="primary" onClick={props.onHide} >
+//         No
+//       </Button>
+//       <Button variant="secondary">
+//         Yes
+//       </Button>
+//     </ModalFooter>
+//   </Modal>
+// }
+
 function Map(props) {
   // const hexagons = GridGenerator.rectangle(30, 30);
 
   // Initialize States
   const [hexagons, setHexagons] = useState(data); // hexagons is the local state which refers to the json data as initial data
   const [user, setUser] = useState("group1"); // test user state only
+  const [selectedTiles, setSelectedTiles]=useState({q:-3,r:-3,s:6});
+  const [ownerTiles,setOwnerTiles]=useState({owner:"none"});
   const [ownedTiles, setOwnedTiles] = useState(
     data.filter((hex) => user === hex.owner) // filter tiles which are owned
   );
-  console.log(ownedTiles);
 
+  const [show,setShow]=useState(false); //use to pop up Modal
+  const handleClose=()=>setShow(false); //to close the Modal
   // function to handle on click
+
   function clickHex(event, source, owner, type) {
     // click validation based on tile ownership
-    const targetHex = source.state.hex;
+    const targetHex = selectedTiles;
     if (owner === user /* or targetHex is adjacent */) {
       const coloredHexas = hexagons.map((hex) => {
         // Highlight tiles that are next to the target (1 distance away)
@@ -51,12 +75,27 @@ function Map(props) {
         return hex;
       });
       setHexagons(coloredHexas);
+      setShow(false);
     } else {
       alert("Not your tile!");
     }
   }
 
+  function selectedHex(event,source,owner,type){
+    setShow(true);
+    setSelectedTiles(source.state.hex);
+    console.log(selectedTiles);
+    setOwnerTiles(owner);
+  }
+
   return (
+    <>
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+    crossorigin="anonymous"
+    />
     <div className="App">
       <h1>Basic example of HexGrid usage.</h1>
       <HexGrid width={1600} height={1200}>
@@ -74,14 +113,26 @@ function Map(props) {
               s={hex.s}
               owner={hex.owner}
               className={hex.props.className}
-              onClick={(_, hexCoord) =>
-                clickHex(_, hexCoord, hex.owner, hex.type)
-              }
+              onClick={(_,hexCoord)=>selectedHex(_,hexCoord,hex.owner,hex.type)}
             />
           ))}
         </Layout>
       </HexGrid>
+      <Modal show={show} onHide={handleClose} aria-labelledby="contained-modal-title-vcenter" centered>
+        <ModalHeader closeButton>
+          <ModalTitle>Confirm on selecting q={selectedTiles.q} r={selectedTiles.r} s={selectedTiles.s}?</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
+          <Button variant="primary" onClick={handleClose} >
+            No
+          </Button>
+          <Button variant="secondary" onClick={(_)=>clickHex(_,selectedTiles,ownerTiles,"unclaimed")}>
+            Yes
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
+    </>
   );
 }
 

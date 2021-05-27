@@ -4,7 +4,7 @@ svg g .hexagon {
 }
 svg g .hexagon:hover {
   filter: brightness(1.4);
-  transition: ease-out 0.1s;
+  transition: ease-out 0.2s;
 }
 svg g.active .hexagon {
   animation-duration: 2s;
@@ -18,7 +18,7 @@ svg g.clicked .hexagon {
   filter: brightness(0.8);
 }
 
-svg g .hexagon#group1 {
+svg g .hexagon #group1 {
   fill: red;
   fill-opacity: 0.9;
   transition: ease-out 0.1s;
