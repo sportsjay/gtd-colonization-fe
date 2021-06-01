@@ -29,21 +29,33 @@ function StyledHex(props) {
   return <Hexagon {...props} />;
 }
 
-// function ConfirmModal(props){
-//   <Modal show={props.show} onHide={props.onHide} aria-labelledby="contained-modal-title-vcenter" centered>
-//     <ModalHeader closeButton>
-//       <ModalTitle>Confirm on what you clicked?</ModalTitle>
-//     </ModalHeader>
-//     <ModalFooter>
-//       <Button variant="primary" onClick={props.onHide} >
-//         No
-//       </Button>
-//       <Button variant="secondary">
-//         Yes
-//       </Button>
-//     </ModalFooter>
-//   </Modal>
-// }
+function FailModal(props){
+  if(props.type==="unclaimed"){
+    return(
+      <Modal show={props.show} onHide={props.onHide}
+      aria-labelledby="contained-modal-title-vcenter">
+        <ModalHeader closeButton>
+          <ModalTitle>That tile is not yours!</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
+          <Button onClick={props.onHide}>Close</Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+  else{
+    return(
+      <Modal show={props.show} onHide={props.onHide} aria-labelledby="contained-modal-title-vcenter">
+        <ModalHeader closeButton>
+          <ModalTitle>That tile is claimed!</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
+          <Button onClick={props.onHide}>Close</Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+}
 
 function Map(props) {
   // const hexagons = GridGenerator.rectangle(30, 30);
@@ -51,41 +63,85 @@ function Map(props) {
   // Initialize States
   const [hexagons, setHexagons] = useState(data); // hexagons is the local state which refers to the json data as initial data
   const [user, setUser] = useState("group1"); // test user state only
-  const [selectedTiles, setSelectedTiles]=useState({q:-3,r:-3,s:6});
-  const [ownerTiles,setOwnerTiles]=useState({owner:"none"});
-  const [ownedTiles, setOwnedTiles] = useState(
-    data.filter((hex) => user === hex.owner) // filter tiles which are owned
-  );
+  const [selectedTiles, setSelectedTiles]=useState({q:-3,r:-3,s:6}); // state to save the coordinates after selecting
+  const [ownerTiles,setOwnerTiles]=useState({owner:"none"}); // state to save the owner variable after selecting
+  const [claimedTiles,setClaimedTiles]=useState({type:"unclaimed"}); // state to save the type variable after selecting
+  const [ownedTiles,setOwnedTiles]=useState(data.filter(hex=>hex.type==="claimed")); // state to know every data that is claimed
+  const [active,setActive]=useState(true); //active or deactive the highlight
+  const [neighbourTiles,setNeighbourTiles]=useState(ownedTiles.map(hex=>data.filter(hexv2=>(HexUtils.distance(hex,hexv2)===1 && hexv2.type!=="claimed"))));
+  const neighbours=[];
+  for(let i=0; i<neighbourTiles.length; i++){
+    for(let j=0; j<neighbourTiles[i].length; j++){
+      neighbours.push({q:neighbourTiles[i][j].q,r:neighbourTiles[i][j].r,s:neighbourTiles[i][j].s,type:neighbourTiles[i][j].type,owner:neighbourTiles[i][j].owner,props:neighbourTiles[i][j].props});
+    }
+  }
+  const set=new Set();
+  for(let i=0; i<neighbours.length; i++){
+    set.add(JSON.stringify(neighbours[i]));
+  }
 
-  const [show,setShow]=useState(false); //use to pop up Modal
-  const handleClose=()=>setShow(false); //to close the Modal
+  const [show,setShow]=useState(false); //use to pop up base Modal
+  const handleClose=()=>setShow(false); //to close the base Modal
+
+  const [failShow,setFailShow]=useState(false);
+  const failClose=()=>setFailShow(false);
   // function to handle on click
 
   function clickHex(event, source, owner, type) {
     // click validation based on tile ownership
+    setActive(false);
     const targetHex = selectedTiles;
-    if (owner === user /* or targetHex is adjacent */) {
+    let x=0;
+    // to check if its distance is adjacent to the claimed tiles
+    for(let i=0; i<ownedTiles.length; i++){
+      if(HexUtils.distance(targetHex,ownedTiles[i])===1){
+        x=1;
+        break;
+      }
+    }
+    if (owner === user && x===1 && type!=="claimed") {
       const coloredHexas = hexagons.map((hex) => {
         // Highlight tiles that are next to the target (1 distance away)
-        hex.props.className =
-          HexUtils.distance(targetHex, hex) === 1 ? "active" : "";
+        if(HexUtils.distance(targetHex,hex)===0){
+          if(hex.props.className.includes("active")){
+            hex.props.className=String(owner);
+          }
+          else{
+            hex.props.className+=String(owner);
+          }
+        }
+        if(HexUtils.distance(targetHex, hex)===1){
+          if(hex.props.className.includes("active") || hex.props.className.includes(String(owner))){
+            console.log("here!")
+          }
+          else{
+            hex.props.className+="active";
+          }
+        }
+        if(set.has(JSON.stringify(hex))){
+          if(hex.props.className.includes("active") || hex.props.className.includes(String(owner))){
+            console.log("here!");
+          }
+          else{
+            hex.props.className+="active";
+          }
+        }
         // Highlight clicked tile
-        hex.props.className +=
-          HexUtils.distance(targetHex, hex) === 0 ? "clicked" : "";
         return hex;
       });
       setHexagons(coloredHexas);
-      setShow(false);
     } else {
-      alert("Not your tile!");
+      setFailShow(true);
     }
+    setShow(false);
   }
 
+  //a function to pass all the props and change every state
   function selectedHex(event,source,owner,type){
     setShow(true);
     setSelectedTiles(source.state.hex);
-    console.log(selectedTiles);
     setOwnerTiles(owner);
+    setClaimedTiles(type);
   }
 
   return (
@@ -105,20 +161,39 @@ function Map(props) {
           spacing={1.02}
           origin={{ x: -56, y: -45 }}
         >
-          {hexagons.map((hex, i) => (
-            <StyledHex
+          {hexagons.map((hex,i)=>{const state=active ? "active" : hex.props.className
+            return hex.type==="claimed" ? <StyledHex
               key={i}
               q={hex.q}
               r={hex.r}
               s={hex.s}
               owner={hex.owner}
-              className={hex.props.className}
+              type={hex.type}
+              className={hex.owner}
               onClick={(_,hexCoord)=>selectedHex(_,hexCoord,hex.owner,hex.type)}
-            />
-          ))}
+            /> : set.has(JSON.stringify(hex)) ? <StyledHex
+            key={i}
+            q={hex.q}
+            r={hex.r}
+            s={hex.s}
+            owner={hex.owner}
+            type={hex.type}
+            className={state}
+            onClick={(_,hexCoord)=>selectedHex(_,hexCoord,hex.owner,hex.type)}
+          /> : <StyledHex
+          key={i}
+          q={hex.q}
+          r={hex.r}
+          s={hex.s}
+          owner={hex.owner}
+          type={hex.type}
+          className={hex.props.className}
+          onClick={(_,hexCoord)=>selectedHex(_,hexCoord,hex.owner,hex.type)}
+        />})}
         </Layout>
       </HexGrid>
-      <Modal show={show} onHide={handleClose} aria-labelledby="contained-modal-title-vcenter" centered>
+      <Modal show={show} onHide={handleClose}
+      aria-labelledby="contained-modal-title-vcenter">
         <ModalHeader closeButton>
           <ModalTitle>Confirm on selecting q={selectedTiles.q} r={selectedTiles.r} s={selectedTiles.s}?</ModalTitle>
         </ModalHeader>
@@ -126,11 +201,12 @@ function Map(props) {
           <Button variant="primary" onClick={handleClose} >
             No
           </Button>
-          <Button variant="secondary" onClick={(_)=>clickHex(_,selectedTiles,ownerTiles,"unclaimed")}>
+          <Button variant="secondary" onClick={(_)=>clickHex(_,selectedTiles,ownerTiles,claimedTiles)}>
             Yes
           </Button>
         </ModalFooter>
       </Modal>
+      <FailModal show={failShow} onHide={failClose} type={claimedTiles}></FailModal>
     </div>
     </>
   );

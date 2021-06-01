@@ -11,17 +11,18 @@ svg g.active .hexagon {
   animation-name: pulse;
   animation-iteration-count: infinite;
 }
-svg g.clicked .hexagon {
+svg g.group2 .hexagon {
   fill: #4499a9;
   fill-opacity: 0.9;
   transition: ease-out 0.1s;
   filter: brightness(0.8);
 }
 
-svg g .hexagon #group1 {
-  fill: red;
+svg g.group1 .hexagon {
+  fill: #d1d1d1;
   fill-opacity: 0.9;
   transition: ease-out 0.1s;
+  filter: brightness(0.8);
 }
 
 @keyframes pulse {

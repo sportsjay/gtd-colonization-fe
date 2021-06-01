@@ -3,26 +3,26 @@
     "q":0,
     "r":0,
     "s":0,
-    "type":"claimed",
+    "type":"unclaimed",
     "owner":"group1","props":{"className":""}
   },
   {
     "q":0,
     "r":1,
     "s":-1,
-    "type":"unclaimed", "owner":"group1","props":{"className":""}
+    "type":"claimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":-1,
     "r":2,
     "s":-1,
-    "type":"unclaimed", "owner":"group1","props":{"className":""}
+    "type":"claimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":-1,
     "r":3,
     "s":-2,
-    "type":"unclaimed", "owner":"none","props":{"className":""}
+    "type":"unclaimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":-2,
@@ -184,19 +184,19 @@
     "q":1,
     "r":0,
     "s":-1,
-    "type":"unclaimed", "owner":"none","props":{"className":""}
+    "type":"unclaimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":1,
     "r":1,
     "s":-2,
-    "type":"unclaimed", "owner":"none","props":{"className":""}
+    "type":"unclaimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":0,
     "r":2,
     "s":-2,
-    "type":"unclaimed", "owner":"none","props":{"className":""}
+    "type":"unclaimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":0,
@@ -364,7 +364,7 @@
     "q":2,
     "r":0,
     "s":-2,
-    "type":"unclaimed", "owner":"none","props":{"className":""}
+    "type":"unclaimed", "owner":"group1","props":{"className":""}
   },
   {
     "q":2,
