@@ -2,20 +2,11 @@ svg g .hexagon {
   fill: #4499a9;
   fill-opacity: 0.6;
 }
-svg g .hexagon:hover {
-  filter: brightness(1.4);
-  transition: ease-out 0.2s;
-}
+
 svg g.active .hexagon {
   animation-duration: 2s;
   animation-name: pulse;
   animation-iteration-count: infinite;
-}
-svg g.group2 .hexagon {
-  fill: #4499a9;
-  fill-opacity: 0.9;
-  transition: ease-out 0.1s;
-  filter: brightness(0.8);
 }
 
 svg g.group1 .hexagon {
@@ -25,14 +16,68 @@ svg g.group1 .hexagon {
   filter: brightness(0.8);
 }
 
+svg g.red .hexagon {
+  fill: red;
+}
+
+svg g.yellow .hexagon {
+  fill: rgb(255, 238, 0);
+}
+
+svg g.blue .hexagon {
+  fill: blue;
+}
+
+svg g.orange .hexagon {
+  fill: orange;
+}
+
+svg g.green .hexagon {
+  fill: green;
+}
+
+svg g.violet .hexagon {
+  fill: violet;
+}
+
+.red {
+  fill: red;
+  background-color: red;
+  color: #2e1818;
+}
+.yellow {
+  fill: rgb(255, 238, 0);
+  background-color: rgb(255, 238, 0);
+  color: #3a3a27;
+}
+.blue {
+  fill: blue;
+  background-color: blue;
+  color: #c9c9c9;
+}
+.orange {
+  fill: orange;
+  background-color: orange;
+  color: #4b3e2a;
+}
+.green {
+  fill: green;
+  background-color: green;
+  color: #2f4630;
+}
+.violet {
+  fill: violet;
+  background-color: violet;
+  color: #3d2936;
+}
 @keyframes pulse {
   0% {
-    opacity: 0.6;
+    opacity: 0.9;
   }
   50% {
-    opacity: 0.2;
+    opacity: 0.5;
   }
   100% {
-    opacity: 0.6;
+    opacity: 0.9;
   }
 }
