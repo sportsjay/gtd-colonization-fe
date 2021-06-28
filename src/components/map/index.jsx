@@ -113,12 +113,33 @@ function FailModal(props) {
   }
 }
 
+function LoginModal(props) {
+  return (
+    <Modal show={props.show} backdrop="static">
+      <ModalHeader>
+        <ModalTitle>You are not logged in!</ModalTitle>
+      </ModalHeader>
+      <ModalFooter>
+        <Button as={Link} to="/">
+          Home
+        </Button>
+        <Button as={Link} to="/utils">
+          View
+        </Button>
+        <Button as={Link} to="/login">
+          Login
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+}
+
 function Map(props) {
   // const hexagons = GridGenerator.rectangle(30, 30);
   // Initialize States
   const [hexagons, setHexagons] = useState(data); // hexagons is the local state which refers to the json data as initial data
   const [user, setUser] = useState("group1"); // test user state only
-  const [isLogged, setIsLogged] = useState(false); // to check whether logged in or not
+  const [isNotLogged, setIsNotLogged] = useState(false); // to check whether logged in or not
   //const [selectedTile, setSelectedTile] = useState({ q: -3, r: -3, s: 6 }); // state to save the coordinates after selecting
   const [previousTile, setPreviousTile] = useState({ q: -3, r: -3, s: 6 }); // state to save the coordinates of previous tiles
   const [adjacent, setAdjacent] = useState(
@@ -177,7 +198,6 @@ function Map(props) {
 
   // to check login credentials
   useEffect(() => {
-    let unmounted = false;
     const token = localStorage.getItem("token");
     if (token) {
       // const decoded = jwt_decode(token);
@@ -187,19 +207,12 @@ function Map(props) {
       axios
         .get("user/", config)
         .then((res) => {
-          // if (!unmounted) {
-          setIsLogged(true);
-          // }
+          setIsNotLogged(false);
         })
         .catch((err) => console.error(err));
     } else {
-      // if (!unmounted) {
-      setIsLogged(false);
-      // }
+      setIsNotLogged(true);
     }
-    // return () => {
-    //   unmounted = true;
-    // };
   }, []);
 
   // to highlight the tile selected
@@ -513,6 +526,7 @@ function Map(props) {
           onHide={failClose}
           onModal={onModal}
         ></FailModal>
+        <LoginModal show={isNotLogged}></LoginModal>
       </div>
       <div className="d-flex flex-wrap justify-content-center align-items-center h-50">
         {layout.map((layout) => {
