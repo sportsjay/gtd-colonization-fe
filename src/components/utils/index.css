@@ -1,0 +1,23 @@
+svg g.red .hexagon {
+  fill: red;
+}
+
+svg g.yellow .hexagon {
+  fill: rgb(255, 238, 0);
+}
+
+svg g.blue .hexagon {
+  fill: blue;
+}
+
+svg g.orange .hexagon {
+  fill: orange;
+}
+
+svg g.green .hexagon {
+  fill: green;
+}
+
+svg g.violet .hexagon {
+  fill: violet;
+}

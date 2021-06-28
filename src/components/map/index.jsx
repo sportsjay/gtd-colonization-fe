@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+
 import { HexGrid, Layout, Hexagon, HexUtils } from "react-hexgrid";
+
 import ModalHeader from "react-bootstrap/esm/ModalHeader";
 import {
   Modal,
@@ -8,11 +10,15 @@ import {
   Container,
   Col,
   Row,
+  Nav,
 } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Navbar from "react-bootstrap/Navbar";
 import Badge from "react-bootstrap/Badge";
 import "./index.css";
+
+import { Switch, Route, Link, Redirect } from "react-router-dom";
+import axios from "axios";
 
 import { data } from "./sample.json";
 // import { data1 } from "./1.json";
@@ -112,6 +118,7 @@ function Map(props) {
   // Initialize States
   const [hexagons, setHexagons] = useState(data); // hexagons is the local state which refers to the json data as initial data
   const [user, setUser] = useState("group1"); // test user state only
+  const [isLogged, setIsLogged] = useState(false); // to check whether logged in or not
   //const [selectedTile, setSelectedTile] = useState({ q: -3, r: -3, s: 6 }); // state to save the coordinates after selecting
   const [previousTile, setPreviousTile] = useState({ q: -3, r: -3, s: 6 }); // state to save the coordinates of previous tiles
   const [adjacent, setAdjacent] = useState(
@@ -167,6 +174,33 @@ function Map(props) {
 
   const [failShow, setFailShow] = useState(false);
   const failClose = () => setFailShow(false);
+
+  // to check login credentials
+  useEffect(() => {
+    let unmounted = false;
+    const token = localStorage.getItem("token");
+    if (token) {
+      // const decoded = jwt_decode(token);
+      const config = {
+        headers: { "auth-token": token },
+      };
+      axios
+        .get("user/", config)
+        .then((res) => {
+          // if (!unmounted) {
+          setIsLogged(true);
+          // }
+        })
+        .catch((err) => console.error(err));
+    } else {
+      // if (!unmounted) {
+      setIsLogged(false);
+      // }
+    }
+    // return () => {
+    //   unmounted = true;
+    // };
+  }, []);
 
   // to highlight the tile selected
   useEffect(() => {
@@ -349,12 +383,6 @@ function Map(props) {
 
   return (
     <>
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
-        crossorigin="anonymous"
-      />
       <div className="d-flex" style={{ height: "100vh" }}>
         <Navbar
           expand="lg"
@@ -371,14 +399,35 @@ function Map(props) {
                   <Badge>Your next color is:</Badge>
                 </Col>
                 <Col>
-                  <Badge pill className={color} style={{ marginLeft: "-20px" }}>
+                  <Badge pill className={color} style={{ marginLeft: "-15px" }}>
                     {color}
                   </Badge>
                 </Col>
               </Row>
             </Container>
           </Navbar.Text>
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav">
+            <Nav className="mr-auto">
+              <Nav.Link as={Link} to="/">
+                <Button variant="outline-secondary">Home</Button>
+              </Nav.Link>
+              <Nav.Link as={Link} to="/utils">
+                <Button variant="outline-secondary">View</Button>
+              </Nav.Link>
+            </Nav>
+            <Nav className="ml-auto">
+              {/* <Nav.Link as={Link} to="/login">
+                <Button variant="outline-secondary">Login</Button>
+              </Nav.Link> change to logout */}
+            </Nav>
+          </Navbar.Collapse>
         </Navbar>
+        <Switch>
+          <Route exact path="/login"></Route>
+          <Route exact path="/home"></Route>
+          <Route exact path="/utils"></Route>
+        </Switch>
         <HexGrid width={"100vw"} height={"100vh"}>
           <Layout
             size={{ x: 6, y: 6 }}

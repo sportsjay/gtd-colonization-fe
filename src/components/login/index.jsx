@@ -4,25 +4,31 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 export default function Page(props) {
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const username = React.createRef();
 
   const password = React.createRef();
 
   function submit() {
     axios
-      .post("http://localhost:4000/user/login", {
+      .post("user/login/", {
         name: username.current.value,
         password: password.current.value,
       })
       .then((res) => {
-        localStorage.setItem("token", res.data.token);
-        console.log(res.data.token);
+        localStorage.setItem("token", res.data.data.token);
+        setLoggedIn(true);
       })
       .catch((err) => {
         console.log(err);
       });
+  }
+  if (loggedIn) {
+    return <Redirect to={"/"}></Redirect>;
   }
   return (
     <Container>
