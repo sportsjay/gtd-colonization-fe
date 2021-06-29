@@ -145,7 +145,11 @@ function Map(props) {
   const [adjacent, setAdjacent] = useState(
     "red green yellow blue violet orange"
   ); // state to save adjacent tile colors
-  const color = adjacent.length > 6 ? "Select a tile first!" : adjacent;
+  const color = localStorage.hasOwnProperty("adjacent")
+    ? localStorage.getItem("adjacent")
+    : adjacent.length > 6
+    ? "Select a tile first!"
+    : adjacent;
   //const [ownerTile, setOwnerTile] = useState({ owner: "none" }); // state to save the owner variable after selecting
   //const [typeTile, setTypeTile] = useState({ type: "none" }); // state to save the type variable after selecting
   //const [colorTile, setColorTile] = useState({ color: "none" }); // state to save the color variable after selecting
@@ -337,16 +341,17 @@ function Map(props) {
     setSuccessShow(false);
     setOnModal(false);
   }
-
   //a function to pass all the props and change every state
   function selectedHex(event, source, owner, type, color) {
     let boolean;
     let colour = color.replace(" active", "");
+
     if (adjacent.length > color.length) {
       boolean = adjacent.includes(colour);
     } else {
       boolean = colour.includes(adjacent);
     }
+
     if (color === String(user) || !boolean) {
       console.log(color === String(user), boolean);
       setFailShow(true);

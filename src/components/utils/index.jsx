@@ -7,6 +7,7 @@ import { layout } from "./layout.js";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 import { Switch, Route, Link } from "react-router-dom";
 
@@ -20,7 +21,14 @@ export default function Page(props) {
     const { type, owner, color, className } = props;
     return <Hexagon {...props} />;
   }
+
   const [isLogged, setIsLogged] = useState(false);
+
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+
+  const [descTile, setDescTile] = useState();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -37,10 +45,63 @@ export default function Page(props) {
       setIsLogged(false);
     }
   }, []);
+
   const handleClick = () => {
     localStorage.clear();
     window.location.reload();
   };
+
+  function selectedHex(layout) {
+    setDescTile(layout);
+    setShow(true);
+  }
+
+  function Zoom(props) {
+    return (
+      <Modal
+        show={props.show}
+        onHide={props.onHide}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Body
+          className="d-flex justify-content-center bg-dark align-items-center flex-column"
+          style={{ height: "50vh" }}
+        >
+          {props.description ? (
+            <HexGrid width="75vw" height="75vh">
+              <Layout
+                size={props.description.size}
+                flat={false}
+                spacing={1.02}
+                origin={props.description.origin}
+              >
+                {props.description.data.map((hex, i) => {
+                  return (
+                    <StyledHex
+                      key={i}
+                      q={hex.q}
+                      r={hex.r}
+                      s={hex.s}
+                      owner={hex.owner}
+                      type={hex.type}
+                      color={hex.color}
+                      className={hex.color}
+                    ></StyledHex>
+                  );
+                })}
+              </Layout>
+            </HexGrid>
+          ) : (
+            <p>Nothing here!</p>
+          )}
+          <Button onClick={props.onHide}>Close</Button>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   return (
     <>
       <Navbar bg="dark" expand="lg" fixed="top" variant="dark">
@@ -81,7 +142,10 @@ export default function Page(props) {
       >
         {layout.map((layout) => {
           return (
-            <div className="flex-column text-center">
+            <div
+              className="flex-column text-center"
+              onClick={() => selectedHex(layout)}
+            >
               <p style={{ marginBottom: "-6vh" }}>Group {layout.id}</p>
               <HexGrid width={layout.width} height={layout.height}>
                 <Layout
@@ -110,6 +174,7 @@ export default function Page(props) {
           );
         })}
       </div>
+      <Zoom show={show} description={descTile} onHide={handleClose}></Zoom>
     </>
   );
 }

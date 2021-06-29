@@ -4,10 +4,11 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
 import axios from "axios";
-import { Switch, Route, Link, Redirect } from "react-router-dom";
+import { Switch, Route, Link, Redirect, useHistory } from "react-router-dom";
 
 export default function Page(props) {
   const [loggedIn, setLoggedIn] = useState(false);
+  const history = useHistory();
 
   const username = React.createRef();
 
@@ -28,7 +29,7 @@ export default function Page(props) {
       });
   }
   if (loggedIn) {
-    return <Redirect to={"/"}></Redirect>;
+    history.goBack();
   }
   return (
     <>
