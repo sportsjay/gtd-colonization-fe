@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Button from "react-bootstrap/Button";
+import Table from "react-bootstrap/Table";
+import { Badge } from "react-bootstrap";
 
 import { Switch, Route, Link } from "react-router-dom";
 
@@ -15,6 +17,9 @@ import {
   Text,
   TextCard,
 } from "./Style";
+import "../map/index.css";
+
+import { leaderboard } from "./leaderboard";
 
 import jwt_decode from "jwt-decode";
 import axios from "axios";
@@ -32,6 +37,7 @@ export default function Page(props) {
       axios
         .get("user/", config)
         .then((res) => {
+          console.log(res.data.data);
           setUser({ name: res.data.data.name });
           setIsLogged(true);
         })
@@ -44,12 +50,16 @@ export default function Page(props) {
     localStorage.clear();
     window.location.reload();
   };
+  let colors = ["red", "green", "blue", "yellow", "orange", "violet"];
   return (
     <>
-      <Navbar bg="dark" expand="lg" fixed="top" variant="dark">
-        <Navbar.Brand as={Link} to="/">
-          GTD
-        </Navbar.Brand>
+      <Navbar bg="dark" expand="lg" fixed="top" variant="dark" lazyAutoToggle>
+        <Navbar.Brand href="#cover">GTD</Navbar.Brand>
+        <Nav className="mr-auto">
+          <Nav.Link href="#leaderboard">
+            <Button variant="outline-secondary">Leaderboard</Button>
+          </Nav.Link>
+        </Nav>
         <Nav className="ml-auto">
           {isLogged ? (
             <Nav.Link as={Link} to="/">
@@ -64,7 +74,7 @@ export default function Page(props) {
           )}
         </Nav>
       </Navbar>
-      <Cont>
+      <Cont id="cover">
         <Card>
           {isLogged ? (
             <Title>Welcome, {user.name}</Title>
@@ -78,7 +88,7 @@ export default function Page(props) {
           <SubCard>
             <SubSubCard>
               <Title>Viewer</Title>
-              <Button as={Link} to="/utils" variant="outline-primary">
+              <Button as={Link} to="/viewer" variant="outline-primary">
                 View
               </Button>
             </SubSubCard>
@@ -91,10 +101,57 @@ export default function Page(props) {
           </SubCard>
         </Card>
       </Cont>
+      <Cont id="leaderboard">
+        <Card>
+          <Table striped responsive="sm">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>User</th>
+                {colors.map((colors) => {
+                  return (
+                    <th>
+                      <Badge className={colors}>{colors}</Badge>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboard.map((leaderboard) => {
+                return (
+                  <tr>
+                    <td>{leaderboard.id}</td>
+                    <td>{leaderboard.user}</td>
+                    {colors.map((colors) => {
+                      let i = 0;
+                      if (i < leaderboard.completedTiles.length) {
+                        if (leaderboard.completedTiles.includes(colors)) {
+                          return (
+                            <td>
+                              <i class="fas fa-check"></i>
+                            </td>
+                          );
+                        } else {
+                          return (
+                            <td>
+                              <i class="fas fa-times"></i>
+                            </td>
+                          );
+                        }
+                      }
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </Card>
+      </Cont>
       <Switch>
         <Route exact path="/login"></Route>
         <Route exact path="/map"></Route>
-        <Route exact path="/utils"></Route>
+        <Route exact path="/viewer"></Route>
       </Switch>
     </>
   );

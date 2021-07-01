@@ -43,7 +43,7 @@ svg g.violet .hexagon {
 .red {
   fill: red;
   background-color: red;
-  color: #2e1818;
+  color: #353030;
 }
 .yellow {
   fill: rgb(255, 238, 0);
@@ -63,7 +63,7 @@ svg g.violet .hexagon {
 .green {
   fill: green;
   background-color: green;
-  color: #2f4630;
+  color: #101411;
 }
 .violet {
   fill: violet;

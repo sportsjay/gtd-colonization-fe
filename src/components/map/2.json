@@ -23,7 +23,7 @@
       "type": "zonk/clue/challenge"
     },
     {
-      "color": "none",
+      "color": "violet",
       "owner": "group1",
       "props": {
         "className": ""
@@ -199,7 +199,7 @@
       "type": "zonk/clue/challenge"
     },
     {
-      "color": "red",
+      "color": "green",
       "owner": "group1",
       "props": {
         "className": ""
@@ -210,7 +210,7 @@
       "type": "zonk/clue/challenge"
     },
     {
-      "color": "green",
+      "color": "violet",
       "owner": "group1",
       "props": {
         "className": ""

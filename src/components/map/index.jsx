@@ -123,7 +123,7 @@ function LoginModal(props) {
         <Button as={Link} to="/">
           Home
         </Button>
-        <Button as={Link} to="/utils">
+        <Button as={Link} to="/viewer">
           View
         </Button>
         <Button as={Link} to="/login">
@@ -430,7 +430,7 @@ function Map(props) {
               <Nav.Link as={Link} to="/">
                 <Button variant="outline-secondary">Home</Button>
               </Nav.Link>
-              <Nav.Link as={Link} to="/utils">
+              <Nav.Link as={Link} to="/viewer">
                 <Button variant="outline-secondary">View</Button>
               </Nav.Link>
             </Nav>
@@ -444,7 +444,7 @@ function Map(props) {
         <Switch>
           <Route exact path="/login"></Route>
           <Route exact path="/home"></Route>
-          <Route exact path="/utils"></Route>
+          <Route exact path="/viewer"></Route>
         </Switch>
         <HexGrid width={"100vw"} height={"100vh"}>
           <Layout

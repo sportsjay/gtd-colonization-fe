@@ -3,6 +3,7 @@ import { Container } from "../login/Style";
 
 export const Cont = styled(Container)`
   background-color: white;
+  scroll-behavior: smooth;
 `;
 
 export const Card = styled(Container)`
@@ -39,6 +40,7 @@ export const SubSubCard = styled(Container)`
 `;
 
 export const Title = styled.h3`
+  text-align: center;
   font-family: "Quicksand", sans-serif;
   font-weight: 1000;
 `;

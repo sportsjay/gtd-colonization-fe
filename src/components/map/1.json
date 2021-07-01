@@ -34,7 +34,7 @@
       "type": "zonk/clue/challenge"
     },
     {
-      "color": "none",
+      "color": "blue",
       "owner": "group1",
       "props": {
         "className": ""
@@ -45,7 +45,7 @@
       "type": "zonk/clue/challenge"
     },
     {
-      "color": "none",
+      "color": "green",
       "owner": "group1",
       "props": {
         "className": ""
