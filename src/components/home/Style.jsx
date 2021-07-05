@@ -7,7 +7,7 @@ export const Cont = styled(Container)`
 `;
 
 export const Card = styled(Container)`
-  height: 70vh;
+  height: max-content;
   width: 80vw;
   justify-content: space-evenly;
   background-color: #f0ffff;

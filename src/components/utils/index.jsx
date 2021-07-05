@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { HexGrid, Layout, Hexagon } from "react-hexgrid";
 
-import { layout } from "./layout.js";
+// import { layout } from "./layout.js";
 
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -21,6 +21,16 @@ export default function Page(props) {
     const { type, owner, color, className } = props;
     return <Hexagon {...props} />;
   }
+  const [data, setData] = useState({
+    "admin-og-1": [],
+    "admin-og-2": [],
+    "admin-og-3": [],
+    "admin-og-4": [],
+    "admin-og-5": [],
+    "admin-og-6": [],
+    "admin-og-7": [],
+    "admin-og-8": [],
+  });
 
   const [isLogged, setIsLogged] = useState(false);
 
@@ -29,8 +39,22 @@ export default function Page(props) {
 
   const [descTile, setDescTile] = useState();
 
+  const og = [
+    "admin-og-1",
+    "admin-og-2",
+    "admin-og-3",
+    "admin-og-4",
+    "admin-og-5",
+    "admin-og-6",
+    "admin-og-7",
+    "admin-og-8",
+  ];
+
   useEffect(() => {
     const token = localStorage.getItem("token");
+    axios.get("map/").then((res) => {
+      setData(res.data.data[0].Map);
+    });
     if (token) {
       const config = {
         headers: { "auth-token": token },
@@ -55,7 +79,6 @@ export default function Page(props) {
     setDescTile(layout);
     setShow(true);
   }
-
   function Zoom(props) {
     return (
       <Modal
@@ -69,15 +92,15 @@ export default function Page(props) {
           className="d-flex justify-content-center bg-dark align-items-center flex-column"
           style={{ height: "50vh" }}
         >
-          {props.description ? (
+          {descTile ? (
             <HexGrid width="75vw" height="75vh">
               <Layout
-                size={props.description.size}
+                size={{ x: 7, y: 7 }}
                 flat={false}
                 spacing={1.02}
-                origin={props.description.origin}
+                origin={{ x: 0, y: 0 }}
               >
-                {props.description.data.map((hex, i) => {
+                {descTile.map((hex, i) => {
                   return (
                     <StyledHex
                       key={i}
@@ -140,41 +163,43 @@ export default function Page(props) {
         className="d-flex flex-wrap justify-content-center align-items-center h-100"
         style={{ marginTop: "80px" }}
       >
-        {layout.map((layout) => {
-          return (
-            <div
-              className="flex-column text-center"
-              onClick={() => selectedHex(layout)}
-            >
-              <p style={{ marginBottom: "-6vh" }}>Group {layout.id}</p>
-              <HexGrid width={layout.width} height={layout.height}>
-                <Layout
-                  size={layout.size}
-                  flat={false}
-                  spacing={1.02}
-                  origin={layout.origin}
+        {data
+          ? og.map((layout) => {
+              return (
+                <div
+                  className="flex-column text-center"
+                  onClick={() => selectedHex(data[layout])}
                 >
-                  {layout.data.map((hex, i) => {
-                    return (
-                      <StyledHex
-                        key={i}
-                        q={hex.q}
-                        r={hex.r}
-                        s={hex.s}
-                        owner={hex.owner}
-                        type={hex.type}
-                        color={hex.color}
-                        className={hex.color}
-                      ></StyledHex>
-                    );
-                  })}
-                </Layout>
-              </HexGrid>
-            </div>
-          );
-        })}
+                  <p style={{ marginBottom: "-6vh" }}>Group {layout}</p>
+                  <HexGrid width="50vw" height="50vh">
+                    <Layout
+                      size={{ x: 7, y: 7 }}
+                      flat={false}
+                      spacing={1.02}
+                      origin={{ x: 0, y: 0 }}
+                    >
+                      {data[layout].map((hex, i) => {
+                        return (
+                          <StyledHex
+                            key={i}
+                            q={hex.q}
+                            r={hex.r}
+                            s={hex.s}
+                            owner={hex.owner}
+                            type={hex.type}
+                            color={hex.color}
+                            className={hex.color}
+                          ></StyledHex>
+                        );
+                      })}
+                    </Layout>
+                  </HexGrid>
+                </div>
+              );
+            })
+          : console.log("nothing")}
       </div>
-      <Zoom show={show} description={descTile} onHide={handleClose}></Zoom>
+      <Zoom show={show} onHide={handleClose}></Zoom>
     </>
   );
 }

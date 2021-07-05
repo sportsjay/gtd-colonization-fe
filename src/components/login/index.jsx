@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import { Container, Text, LoginCard } from "./Style";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 import axios from "axios";
 import { Switch, Route, Link, Redirect, useHistory } from "react-router-dom";
 
 export default function Page(props) {
+  const [show,setShow]=useState(false);
+  const handleClose = () => setShow(false);
+
   const [loggedIn, setLoggedIn] = useState(false);
   const history = useHistory();
 
@@ -25,7 +29,7 @@ export default function Page(props) {
         setLoggedIn(true);
       })
       .catch((err) => {
-        console.log(err);
+        setShow(true)
       });
   }
   if (loggedIn) {
@@ -65,6 +69,21 @@ export default function Page(props) {
       <Switch>
         <Route exact path="/home"></Route>
       </Switch>
+      <FailLogin show={show} onHide={handleClose}></FailLogin>
     </>
   );
+}
+
+function FailLogin(props){
+  return(
+    <Modal show={props.show} onHide={props.onHide} aria-labelledby="contained-modal-title-vcenter"
+    centered>
+      <Modal.Body>
+        <Modal.Title>Wrong Username or Password!</Modal.Title>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+  )
 }

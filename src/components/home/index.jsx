@@ -19,14 +19,13 @@ import {
 } from "./Style";
 import "../map/index.css";
 
-import { leaderboard } from "./leaderboard";
-
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 
 export default function Page(props) {
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState({ name: "" });
+  const [leaderboard, setLeaderboard] = useState([]);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -45,6 +44,10 @@ export default function Page(props) {
     } else {
       setIsLogged(false);
     }
+    axios.get("user/getuserprogress").then((res) => {
+      console.log(res.data.data);
+      setLeaderboard(res.data.data);
+    });
   }, []);
   const handleClick = () => {
     localStorage.clear();
@@ -106,7 +109,6 @@ export default function Page(props) {
           <Table striped responsive="sm">
             <thead>
               <tr>
-                <th>No.</th>
                 <th>User</th>
                 {colors.map((colors) => {
                   return (
@@ -121,24 +123,20 @@ export default function Page(props) {
               {leaderboard.map((leaderboard) => {
                 return (
                   <tr>
-                    <td>{leaderboard.id}</td>
-                    <td>{leaderboard.user}</td>
+                    <td>{leaderboard.name}</td>
                     {colors.map((colors) => {
-                      let i = 0;
-                      if (i < leaderboard.completedTiles.length) {
-                        if (leaderboard.completedTiles.includes(colors)) {
-                          return (
-                            <td>
-                              <i class="fas fa-check"></i>
-                            </td>
-                          );
-                        } else {
-                          return (
-                            <td>
-                              <i class="fas fa-times"></i>
-                            </td>
-                          );
-                        }
+                      if (leaderboard.completedColor.includes(colors)) {
+                        return (
+                          <td>
+                            <i class="fas fa-check"></i>
+                          </td>
+                        );
+                      } else {
+                        return (
+                          <td>
+                            <i class="fas fa-times"></i>
+                          </td>
+                        );
                       }
                     })}
                   </tr>
