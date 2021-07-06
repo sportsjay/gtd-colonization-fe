@@ -24,7 +24,7 @@ import Badge from "react-bootstrap/Badge";
 import Form from "react-bootstrap/Form";
 import "./index.css";
 
-import { Switch, Route, Link, Redirect } from "react-router-dom";
+import { Switch, Route, Link } from "react-router-dom";
 import axios from "axios";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -37,11 +37,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
     "r":0,
     "s":0,
     "color":"red"
-    "type":"zonk",
-    "owner":"group1",
-    "props":{
-      "className":""
-    }
+    "type":"qna",
+    "owner":"admin-og-1",
+    "question":"bayi makan apa?",
+    "answer":"makan makanan",
   },
 */
 
@@ -52,26 +51,6 @@ function StyledHex(props) {
 }
 
 function SuccessModal(props) {
-  // return (
-  //   <Modal
-  //     show={props.show}
-  //     onHide={props.onHide}
-  //     aria-labelledby="contained-modal-title-vcenter"
-  //     centered
-  //   >
-  //     <ModalHeader closeButton>
-  //       <ModalTitle>
-  //         Zonk/Challenge coordinate = {props.descTile.q} {props.descTile.r}{" "}
-  //         {props.descTile.s}
-  //       </ModalTitle>
-  //     </ModalHeader>
-  //     <ModalFooter>
-  //       <Button variant="primary" onClick={props.clickHex}>
-  //         Confirm
-  //       </Button>
-  //     </ModalFooter>
-  //   </Modal>
-  // );
   if (props.descTile.type === "qna") {
     return (
       <Modal
@@ -204,6 +183,12 @@ function Map(props) {
   let users = {
     "admin-og-1": 0,
     "admin-og-2": 1,
+    "admin-og-3": 2,
+    "admin-og-4": 3,
+    "admin-og-5": 4,
+    "admin-og-6": 5,
+    "admin-og-7": 6,
+    "admin-og-8": 7,
   };
   const [user, setUser] = useState({
     name: "",
@@ -239,11 +224,10 @@ function Map(props) {
   //   type: String,
   //   default: "none",
   // }); // to change users
-  const [adjacent, setAdjacent] = useState(
-    //"red green yellow blue violet orange"
-    "none"
-  ); // state to save adjacent tile colors
+  const [changeColor, setChangeColor] = useState(true); // to check whether answer is right or wrong. If wrong, then dont randomize for next color
+  const [adjacent, setAdjacent] = useState("none"); // state to save adjacent tile colors
   const color = adjacent.includes("none") ? "Select a tile first!" : adjacent;
+
   const [descTile, setDescTile] = useState({
     q: -3,
     r: -3,
@@ -258,13 +242,12 @@ function Map(props) {
   const answer = React.createRef();
 
   const [isNotLogged, setIsNotLogged] = useState(false); // to check whether logged in or not
-  const token = localStorage.getItem("token");
 
-  const [successShow, setSuccessShow] = useState(false); //use to pop up base Modal
-  const successClose = () => setSuccessShow(false); //to close the base Modal
+  const [successShow, setSuccessShow] = useState(false); //use to pop up Success Modal
+  const successClose = () => setSuccessShow(false); //to close the Success Modal
 
-  const [failShow, setFailShow] = useState(false);
-  const failClose = () => setFailShow(false);
+  const [failShow, setFailShow] = useState(false); //use to pop up Fail Modal
+  const failClose = () => setFailShow(false); //use to close Fail Modal
 
   // to check login credentials
   useEffect(() => {
@@ -316,15 +299,10 @@ function Map(props) {
     const config = {
       headers: { "auth-token": token },
     };
-    if (token) {
-      axios.get("user/", config).then((res) => {
-        setUser(res.data.data);
-      });
-    }
-    // click validation based on tile ownership
-    let ans = descTile.question ? answer.current.value : "";
-    let completed = "";
-    let adjcolors = [];
+
+    let ans = descTile.question ? answer.current.value : ""; // to check if there is question, it will be current anwser, else empty string
+    let adjcolors = []; // to store colors that is adjacent to current tile
+    let adjcoords = []; // to store coordinates that is adjacent to current tile
 
     for (let i = 0; i < hexagons.length; i += 1) {
       if (
@@ -332,39 +310,29 @@ function Map(props) {
         hexagons[i].color !== String(user.name)
       ) {
         adjcolors.push(hexagons[i].color);
+        adjcoords.push({
+          q: hexagons[i].q,
+          r: hexagons[i].r,
+          s: hexagons[i].s,
+          color: hexagons[i].color,
+        });
       }
     }
     adjcolors = [...new Set(adjcolors)];
-    let item = adjcolors[Math.floor(Math.random() * adjcolors.length)];
-    setAdjacent(String(item));
+    let item;
+    if (changeColor) {
+      item = adjcolors[Math.floor(Math.random() * adjcolors.length)];
+      setAdjacent(String(item)); //randomized adjacent color
+    }
+    item = item ? String(item) : adjacent; // if not able to change color (due to wrong answer), item will be assigned as adjacent
 
-    if (
-      (user.completedTiles.length > 0 &&
-        HexUtils.distance(descTile, user.onProgress.currentTile) === 1) ||
-      user.completedTiles.length === 0
-    ) {
-      const coloredHexas = hexagons
-        ? hexagons.map((hex) => {
-            if (HexUtils.equals(descTile, hex)) {
-              completed += hex.color;
-              completed = completed.replace(" active", "");
-              hex.color = user.name;
-            } else if (
-              HexUtils.distance(descTile, hex) === 1 &&
-              hex.color !== user.name &&
-              hex.color === String(item)
-            ) {
-              if (hex.color.includes(" active") === false) {
-                hex.color += " active";
-              }
-            }
-            return hex;
-          })
-        : GridGenerator.hexagon(3);
-      setHexagons(coloredHexas);
-      if (token) {
-        axios
-          .put(
+    adjcoords = adjcoords.filter((adj) => adj.color === item); // filter coordinates that has the same color as adjacent
+
+    if (token) {
+      axios
+        .all([
+          axios.get("user/", config),
+          axios.put(
             "map/move",
             {
               name: user.name,
@@ -373,23 +341,41 @@ function Map(props) {
               q: descTile.q,
               r: descTile.r,
               s: descTile.s,
-              newTileColor: user.name,
-              leaderboard: completed,
+              newTileColor: descTile.color,
+              adjacentCoord: adjcoords,
             },
             config
-          )
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            setFailShow(true);
+          ),
+        ])
+        .then(
+          axios.spread((login, map) => {
+            setUser(login.data.data);
+            const coloredHexas = hexagons
+              ? hexagons.map((hex) => {
+                  if (HexUtils.equals(descTile, hex)) {
+                    hex.color = user.name;
+                  } else if (
+                    HexUtils.distance(descTile, hex) === 1 &&
+                    hex.color !== user.name &&
+                    hex.color === String(item)
+                  ) {
+                    if (hex.color.includes(" active") === false) {
+                      hex.color += " active";
+                    }
+                  }
+                  return hex;
+                })
+              : GridGenerator.hexagon(3);
+            setHexagons(coloredHexas);
             setSuccessShow(false);
-          });
-      }
-    } else {
-      setFailShow(true);
+            setChangeColor(true);
+          })
+        )
+        .catch((err) => {
+          setChangeColor(false);
+          setFailShow(true);
+        });
     }
-    setSuccessShow(false);
   }
   //a function to pass all the props and change every state
   function selectedHex(event, source, owner, type, color, question, answer) {
@@ -397,115 +383,34 @@ function Map(props) {
     const config = {
       headers: { "auth-token": token },
     };
-    console.log(user);
-    let boolean;
-    let colour = color.replace(" active", "");
-    if (adjacent.includes("none")) {
-      boolean = true;
-    } else if (adjacent.length > color.length) {
-      boolean = adjacent.includes(colour);
-    } else {
-      boolean = colour.includes(adjacent);
-    }
-
-    if (color === String(user.name) || !boolean) {
-      console.log("wow");
-      setFailShow(true);
-    } else {
-      if (user.onProgress.status) {
-        if (HexUtils.equals(source.state.hex, descTile)) {
-          console.log("here");
-          setSuccessShow(true);
-        } else {
-          console.log("wow1");
-          setFailShow(true);
-        }
-      } else {
-        if (user.onProgress.currentTile.q === null) {
-          console.log("there");
-          setDescTile({
-            q: source.state.hex.q,
-            r: source.state.hex.r,
-            s: source.state.hex.s,
-            owner: owner,
-            type: type,
-            color: color,
-            question: question,
-            answer: answer,
-          });
-          const token = localStorage.getItem("token");
-          if (token) {
-            const config = {
-              headers: { "auth-token": token },
-            };
-            axios
-              .post(
-                "map/move",
-                {
-                  name: user.name,
-                  nextTileColor: adjacent,
-                  q: source.state.hex.q,
-                  r: source.state.hex.r,
-                  s: source.state.hex.s,
-                  newTileColor: color + " active",
-                },
-                config
-              )
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((err) => {
-                setFailShow(true);
-                setSuccessShow(false);
-              });
-          }
-          setSuccessShow(true);
-        } else if (
-          HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1
-        ) {
-          console.log("everywhere");
-          setDescTile({
-            q: source.state.hex.q,
-            r: source.state.hex.r,
-            s: source.state.hex.s,
-            owner: owner,
-            type: type,
-            color: color,
-            question: question,
-            answer: answer,
-          });
-          if (token) {
-            axios
-              .post(
-                "map/move",
-                {
-                  name: user.name,
-                  nextTileColor: adjacent,
-                  q: source.state.hex.q,
-                  r: source.state.hex.r,
-                  s: source.state.hex.s,
-                  newTileColor: color + " active",
-                },
-                config
-              )
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((err) => {
-                console.log("error ye");
-                setFailShow(true);
-                setSuccessShow(false);
-              });
-          }
-          setSuccessShow(true);
-        } else {
-          console.log(
-            HexUtils.distance(source.state.hex, user.onProgress.currentTile)
-          );
-          setFailShow(true);
-        }
-      }
-    }
+    axios
+      .post(
+        "map/move",
+        {
+          name: user.name,
+          newTileColor: color + " active",
+          q: source.state.hex.q,
+          r: source.state.hex.r,
+          s: source.state.hex.s,
+        },
+        config
+      )
+      .then((res) => {
+        setDescTile({
+          q: source.state.hex.q,
+          r: source.state.hex.r,
+          s: source.state.hex.s,
+          owner: owner,
+          type: type,
+          color: color,
+          question: question,
+          answer: answer,
+        });
+        setSuccessShow(true);
+      })
+      .catch((err) => {
+        setFailShow(true);
+      });
   }
 
   return (

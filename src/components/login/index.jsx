@@ -5,10 +5,10 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 import axios from "axios";
-import { Switch, Route, Link, Redirect, useHistory } from "react-router-dom";
+import { Switch, Route, Link, useHistory } from "react-router-dom";
 
 export default function Page(props) {
-  const [show,setShow]=useState(false);
+  const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -29,7 +29,7 @@ export default function Page(props) {
         setLoggedIn(true);
       })
       .catch((err) => {
-        setShow(true)
+        setShow(true);
       });
   }
   if (loggedIn) {
@@ -57,7 +57,7 @@ export default function Page(props) {
               <Form.Control
                 type="password"
                 placeholder="Type real name"
-                aria-label="Username"
+                aria-label="Password"
                 aria-describedby="basic-addon1"
                 ref={password}
               ></Form.Control>
@@ -74,10 +74,14 @@ export default function Page(props) {
   );
 }
 
-function FailLogin(props){
-  return(
-    <Modal show={props.show} onHide={props.onHide} aria-labelledby="contained-modal-title-vcenter"
-    centered>
+function FailLogin(props) {
+  return (
+    <Modal
+      show={props.show}
+      onHide={props.onHide}
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
       <Modal.Body>
         <Modal.Title>Wrong Username or Password!</Modal.Title>
       </Modal.Body>
@@ -85,5 +89,5 @@ function FailLogin(props){
         <Button onClick={props.onHide}>Close</Button>
       </Modal.Footer>
     </Modal>
-  )
+  );
 }
