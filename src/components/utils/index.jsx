@@ -12,8 +12,11 @@ import Modal from "react-bootstrap/Modal";
 import { Switch, Route, Link } from "react-router-dom";
 
 import axios from "axios";
+import io from "socket.io-client";
 
 import "./index.css";
+
+//const socket = io("http://localhost:4000");
 
 // this page is for queue and shop
 export default function Page(props) {

@@ -26,8 +26,11 @@ import "./index.css";
 
 import { Switch, Route, Link } from "react-router-dom";
 import axios from "axios";
+import io from "socket.io-client";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+
+//const socket = io("http://localhost:4000");
 
 /* the Map function contains the layout of the hexagons, 
   individual hexagons are built from sample.json data which 
@@ -101,7 +104,7 @@ function SuccessModal(props) {
 }
 
 function FailModal(props) {
-  if (props.answer === "wrong") {
+  if (props.message === "Answer is not correct") {
     return (
       <Modal
         show={props.show}
@@ -115,7 +118,39 @@ function FailModal(props) {
         </ModalFooter>
       </Modal>
     );
-  } else if (props.status) {
+  } else if (props.message === "Tile is already completed") {
+    return (
+      <Modal
+        show={props.show}
+        onHide={props.onHide}
+        aria-labelledby="container-modal-title-vcenter"
+        centered
+      >
+        <ModalHeader closeButton>
+          <ModalTitle>You have selected that tile before!</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
+          <Button onClick={props.onHide}>Close</Button>
+        </ModalFooter>
+      </Modal>
+    );
+  } else if (props.message === "color chosen doesn't match") {
+    return (
+      <Modal
+        show={props.show}
+        onHide={props.onHide}
+        aria-labelledby="container-modal-title-vcenter"
+        centered
+      >
+        <ModalHeader closeButton>
+          <ModalTitle>Please choose the highlighted tile!</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
+          <Button onClick={props.onHide}>Close</Button>
+        </ModalFooter>
+      </Modal>
+    );
+  } else if (props.message === "Still on progress") {
     return (
       <Modal
         show={props.show}
@@ -125,7 +160,7 @@ function FailModal(props) {
       >
         <ModalHeader closeButton>
           <ModalTitle>
-            You have selected a tile! Do finish it first to proceed!
+            You have selected a tile! <br></br>Do finish it first to proceed!
           </ModalTitle>
         </ModalHeader>
         <ModalFooter>
@@ -142,10 +177,7 @@ function FailModal(props) {
         centered
       >
         <ModalHeader closeButton>
-          <ModalTitle>
-            It is not adjacent to your current tile or You have selected that
-            tile before!
-          </ModalTitle>
+          <ModalTitle>Random error</ModalTitle>
         </ModalHeader>
         <ModalFooter>
           <Button onClick={props.onHide}>Close</Button>
@@ -224,7 +256,7 @@ function Map(props) {
   //   type: String,
   //   default: "none",
   // }); // to change users
-  const [changeColor, setChangeColor] = useState(true); // to check whether answer is right or wrong. If wrong, then dont randomize for next color
+  const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to check whether answer is right or wrong. If wrong, then dont randomize for next color
   const [adjacent, setAdjacent] = useState("none"); // state to save adjacent tile colors
   const color = adjacent.includes("none") ? "Select a tile first!" : adjacent;
 
@@ -320,7 +352,7 @@ function Map(props) {
     }
     adjcolors = [...new Set(adjcolors)];
     let item;
-    if (changeColor) {
+    if (changeColor.status) {
       item = adjcolors[Math.floor(Math.random() * adjcolors.length)];
       setAdjacent(String(item)); //randomized adjacent color
     }
@@ -368,11 +400,11 @@ function Map(props) {
               : GridGenerator.hexagon(3);
             setHexagons(coloredHexas);
             setSuccessShow(false);
-            setChangeColor(true);
+            setChangeColor({ status: true, error: "" });
           })
         )
         .catch((err) => {
-          setChangeColor(false);
+          setChangeColor({ status: false, error: err.response.data.message });
           setFailShow(true);
         });
     }
@@ -409,6 +441,7 @@ function Map(props) {
         setSuccessShow(true);
       })
       .catch((err) => {
+        setChangeColor({ status: true, error: err.response.data.message });
         setFailShow(true);
       });
   }
@@ -503,7 +536,7 @@ function Map(props) {
         <FailModal
           show={failShow}
           onHide={failClose}
-          status={user.onProgress.status}
+          message={changeColor.error}
         ></FailModal>
         <LoginModal show={isNotLogged}></LoginModal>
       </div>

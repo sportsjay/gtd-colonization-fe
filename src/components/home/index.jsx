@@ -21,6 +21,9 @@ import "../map/index.css";
 
 import jwt_decode from "jwt-decode";
 import axios from "axios";
+import io from "socket.io-client";
+
+//const socket = io("http://localhost:4000");
 
 export default function Page(props) {
   const [isLogged, setIsLogged] = useState(false);
