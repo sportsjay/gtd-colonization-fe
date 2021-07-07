@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from "react";
-
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Button from "react-bootstrap/Button";
-import Table from "react-bootstrap/Table";
-import { Badge } from "react-bootstrap";
-
+import React, { useEffect, useState, useContext } from "react";
+import { Badge, Button, Table } from "react-bootstrap";
 import { Switch, Route, Link } from "react-router-dom";
 
 import {
@@ -19,13 +13,14 @@ import {
 } from "./Style";
 import "../map/index.css";
 
-import jwt_decode from "jwt-decode";
 import axios from "axios";
-import io from "socket.io-client";
+import { SocketContext } from "../../utils/socket";
 
-const socket = io("http://localhost:4000", { transports: ["websocket"] });
+// const socket = io("http://localhost:4000", { transports: ["websocket"] });
 
 export default function Page(props) {
+  const socket = useContext(SocketContext);
+
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState({ name: "" });
   const [leaderboard, setLeaderboard] = useState([
@@ -38,11 +33,10 @@ export default function Page(props) {
     { name: "", completedColor: [] },
     { name: "", completedColor: [] },
   ]);
-  let colors = ["red", "green", "blue", "yellow", "orange", "violet"];
+  const colors = ["red", "green", "blue", "yellow", "orange", "violet"];
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decoded = jwt_decode(token);
       const config = {
         headers: { "auth-token": token },
       };
@@ -57,11 +51,8 @@ export default function Page(props) {
       setIsLogged(false);
     }
     axios.get("user/getuserprogress").then((res) => {
-      console.log(res.data.data);
       setLeaderboard(res.data.data);
     });
-  }, []);
-  useEffect(() => {
     let users = {
       "admin-og-1": 0,
       "admin-og-2": 1,
@@ -79,15 +70,11 @@ export default function Page(props) {
       leaderboard[users[newData.user]].completedColor = newSet;
       setLeaderboard(leaderboard);
     });
-  }, []);
-  console.log(leaderboard);
-  const handleClick = () => {
-    localStorage.clear();
-    window.location.reload();
-  };
+  }, [socket]);
+
   return (
     <>
-      <Navbar bg="dark" expand="lg" fixed="top" variant="dark" lazyAutoToggle>
+      {/* <Navbar bg="dark" expand="lg" fixed="top" variant="dark" lazyAutoToggle>
         <Navbar.Brand href="#cover">GTD</Navbar.Brand>
         <Nav className="mr-auto">
           <Nav.Link href="#leaderboard">
@@ -107,7 +94,7 @@ export default function Page(props) {
             </Nav.Link>
           )}
         </Nav>
-      </Navbar>
+      </Navbar> */}
       <Cont id="cover">
         <Card>
           {isLogged ? (
@@ -159,13 +146,13 @@ export default function Page(props) {
                       if (leaderboard.completedColor.includes(colors)) {
                         return (
                           <td>
-                            <i class="fas fa-check"></i>
+                            <i class="fas fa-check" />
                           </td>
                         );
                       } else {
                         return (
                           <td>
-                            <i class="fas fa-times"></i>
+                            <i class="fas fa-times" />
                           </td>
                         );
                       }

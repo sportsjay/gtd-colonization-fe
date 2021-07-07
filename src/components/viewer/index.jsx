@@ -1,29 +1,20 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useState, useContext } from "react";
 import { HexGrid, Layout, Hexagon } from "react-hexgrid";
-
-// import { layout } from "./layout.js";
-
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-
-import { Switch, Route, Link } from "react-router-dom";
+import { Modal, Button } from "react-bootstrap";
 
 import axios from "axios";
-import io from "socket.io-client";
+import { SocketContext } from "../../utils/socket";
 
 import "./index.css";
 
-// this page is for queue and shop
-export default function Page(props) {
-  function StyledHex(props) {
-    const { type, owner, color, className } = props;
-    return <Hexagon {...props} />;
-  }
+function StyledHex(props) {
+  return <Hexagon {...props} />;
+}
 
-  const [data, setData] = useState([
+// Viewers
+export default function ViewerPage(props) {
+  const socket = useContext(SocketContext);
+  const [maps, setMaps] = useState([
     { tiles: [], name: "" },
     { tiles: [], name: "" },
     { tiles: [], name: "" },
@@ -53,19 +44,18 @@ export default function Page(props) {
   };
 
   useEffect(() => {
-    const socket = io("http://localhost:4000", { transports: ["websocket"] });
-    socket.on("hexagon", (newData) => {
-      if (data) {
-        data[users[newData.user]].tiles = newData.grid;
-        setData(data);
-      }
+    socket.on("mapUpdate", (newData) => {
+      const _maps = newData.data;
+      console.log(_maps);
+      // data[users[newData.user]].tiles = newData.grid;
+      setMaps(_maps);
     });
     const token = localStorage.getItem("token");
     const config = {
       headers: { "auth-token": token },
     };
     axios.get("map/").then((res) => {
-      setData(res.data.data);
+      setMaps(res.data.data);
     });
     if (token) {
       axios.get("user/", config).then((res) => {
@@ -74,17 +64,13 @@ export default function Page(props) {
     } else {
       setIsLogged(false);
     }
-  }, []);
-
-  const handleClick = () => {
-    localStorage.clear();
-    window.location.reload();
-  };
+  }, [socket]);
 
   function selectedHex(layout) {
     setDescTile(layout);
     setShow(true);
   }
+
   function Zoom(props) {
     return (
       <Modal
@@ -133,44 +119,12 @@ export default function Page(props) {
 
   return (
     <>
-      <Navbar bg="dark" expand="lg" fixed="top" variant="dark">
-        <Navbar.Brand as={Link} to="/">
-          GTD
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-        <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="mr-auto">
-            <Nav.Link as={Link} to="/">
-              <Button variant="outline-secondary">Home</Button>
-            </Nav.Link>
-            <Nav.Link as={Link} to="/map">
-              <Button variant="outline-secondary">Map</Button>
-            </Nav.Link>
-          </Nav>
-          <Nav className="ml-auto">
-            {isLogged ? (
-              <Nav.Link as={Link} to="/utils" onClick={handleClick}>
-                <Button variant="outline-secondary">Logout</Button>
-              </Nav.Link>
-            ) : (
-              <Nav.Link as={Link} to="/login">
-                <Button variant="outline-secondary">Login</Button>
-              </Nav.Link>
-            )}
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
-      <Switch>
-        <Route exact path="/login"></Route>
-        <Route exact path="/map"></Route>
-        <Route exact path="/"></Route>
-      </Switch>
       <div
         className="d-flex flex-wrap justify-content-center align-items-center h-100"
         style={{ marginTop: "80px" }}
       >
-        {data
-          ? data.map((layout) => {
+        {maps
+          ? maps.map((layout) => {
               return (
                 <div
                   className="flex-column text-center"
@@ -195,7 +149,7 @@ export default function Page(props) {
                             type={hex.type}
                             color={hex.color}
                             className={hex.color}
-                          ></StyledHex>
+                          />
                         );
                       })}
                     </Layout>

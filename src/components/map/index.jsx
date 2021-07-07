@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import {
   HexGrid,
@@ -13,24 +13,20 @@ import {
   Modal,
   ModalFooter,
   ModalTitle,
-  Container,
-  Col,
+  Button,
+  Form,
   Row,
-  Nav,
+  Col,
+  Badge,
 } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-import Navbar from "react-bootstrap/Navbar";
-import Badge from "react-bootstrap/Badge";
-import Form from "react-bootstrap/Form";
+
 import "./index.css";
 
-import { Switch, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import io from "socket.io-client";
+import { SocketContext } from "../../utils/socket";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-
-const socket = io("http://localhost:4000", { transports: ["websocket"] });
 
 /* the Map function contains the layout of the hexagons, 
   individual hexagons are built from sample.json data which 
@@ -49,7 +45,6 @@ const socket = io("http://localhost:4000", { transports: ["websocket"] });
 
 // Create Styling Hexagon based of type and owner
 function StyledHex(props) {
-  const { type, owner, color, className } = props;
   return <Hexagon {...props} />;
 }
 
@@ -209,6 +204,7 @@ function LoginModal(props) {
 }
 
 function Map(props) {
+  const socket = useContext(SocketContext);
   // const hexagons = GridGenerator.rectangle(30, 30);
   // Initialize States
   const [hexagons, setHexagons] = useState(); // hexagons is the local state which refers to the json data as initial data
@@ -301,10 +297,7 @@ function Map(props) {
     } else {
       setIsNotLogged(true);
     }
-  }, []);
-
-  // to highlight the tile selected
-  useEffect(() => {
+    // to highlight the tile selected
     const coloredHexas = hexagons
       ? hexagons.map((hex) => {
           if (HexUtils.distance(hex, user.onProgress.currentTile) === 1) {
@@ -323,7 +316,8 @@ function Map(props) {
         })
       : GridGenerator.hexagon(3);
     setHexagons(coloredHexas);
-  }, [descTile]);
+  }, [socket, descTile]);
+
   // function to handle on click
   // use this function if success
   function clickHex() {
@@ -454,46 +448,31 @@ function Map(props) {
 
   return (
     <>
-      <div className="d-flex" style={{ height: "100vh" }}>
-        <Navbar
-          expand="lg"
-          bg="dark"
-          variant="dark"
-          fixed="top"
-          className="justify-content-between"
+      <div
+        className="d-flex"
+        style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+      >
+        <header
+          style={{
+            marginTop: 80,
+            width: "100%",
+            // background: "",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          <Navbar.Brand>GTD</Navbar.Brand>
-          <Navbar.Text>
-            <Container>
-              <Row>
-                <Col xs={20}>
-                  <Badge>Your next color is:</Badge>
-                </Col>
-                <Col>
-                  <Badge pill className={color} style={{ marginLeft: "-15px" }}>
-                    {color}
-                  </Badge>
-                </Col>
-              </Row>
-            </Container>
-          </Navbar.Text>
-          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link as={Link} to="/">
-                <Button variant="outline-secondary">Home</Button>
-              </Nav.Link>
-              <Nav.Link as={Link} to="/viewer">
-                <Button variant="outline-secondary">View</Button>
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
-        <Switch>
-          <Route exact path="/login"></Route>
-          <Route exact path="/home"></Route>
-          <Route exact path="/viewer"></Route>
-        </Switch>
+          <Row>
+            <Col xs={20}>
+              <Badge>Your next color is:</Badge>
+            </Col>
+            <Col>
+              <Badge pill className={color} style={{ marginLeft: "-15px" }}>
+                {color}
+              </Badge>
+            </Col>
+          </Row>
+        </header>
         <HexGrid width={"100vw"} height={"100vh"}>
           <Layout
             size={{ x: 6, y: 6 }}
@@ -524,7 +503,7 @@ function Map(props) {
                         hex.answer
                       )
                     }
-                  ></StyledHex>
+                  />
                 );
               })
             ) : (
