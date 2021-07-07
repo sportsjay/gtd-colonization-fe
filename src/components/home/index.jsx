@@ -23,12 +23,22 @@ import jwt_decode from "jwt-decode";
 import axios from "axios";
 import io from "socket.io-client";
 
-//const socket = io("http://localhost:4000");
+const socket = io("http://localhost:4000", { transports: ["websocket"] });
 
 export default function Page(props) {
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState({ name: "" });
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+    { name: "", completedColor: [] },
+  ]);
+  let colors = ["red", "green", "blue", "yellow", "orange", "violet"];
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -39,7 +49,6 @@ export default function Page(props) {
       axios
         .get("user/", config)
         .then((res) => {
-          console.log(res.data.data);
           setUser({ name: res.data.data.name });
           setIsLogged(true);
         })
@@ -52,11 +61,30 @@ export default function Page(props) {
       setLeaderboard(res.data.data);
     });
   }, []);
+  useEffect(() => {
+    let users = {
+      "admin-og-1": 0,
+      "admin-og-2": 1,
+      "admin-og-3": 2,
+      "admin-og-4": 3,
+      "admin-og-5": 4,
+      "admin-og-6": 5,
+      "admin-og-7": 6,
+      "admin-og-8": 7,
+    };
+    socket.on("hexagon", (newData) => {
+      let newCompletedColor = leaderboard[users[newData.user]].completedColor;
+      newCompletedColor.push(newData.color.replace(/ active/g, ""));
+      let newSet = [...new Set(newCompletedColor)];
+      leaderboard[users[newData.user]].completedColor = newSet;
+      setLeaderboard(leaderboard);
+    });
+  }, []);
+  console.log(leaderboard);
   const handleClick = () => {
     localStorage.clear();
     window.location.reload();
   };
-  let colors = ["red", "green", "blue", "yellow", "orange", "violet"];
   return (
     <>
       <Navbar bg="dark" expand="lg" fixed="top" variant="dark" lazyAutoToggle>

@@ -16,24 +16,23 @@ import io from "socket.io-client";
 
 import "./index.css";
 
-//const socket = io("http://localhost:4000");
-
 // this page is for queue and shop
 export default function Page(props) {
   function StyledHex(props) {
     const { type, owner, color, className } = props;
     return <Hexagon {...props} />;
   }
-  const [data, setData] = useState({
-    "admin-og-1": [],
-    "admin-og-2": [],
-    "admin-og-3": [],
-    "admin-og-4": [],
-    "admin-og-5": [],
-    "admin-og-6": [],
-    "admin-og-7": [],
-    "admin-og-8": [],
-  });
+
+  const [data, setData] = useState([
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+    { tiles: [], name: "" },
+  ]);
 
   const [isLogged, setIsLogged] = useState(false);
 
@@ -42,32 +41,36 @@ export default function Page(props) {
 
   const [descTile, setDescTile] = useState();
 
-  const og = [
-    "admin-og-1",
-    "admin-og-2",
-    "admin-og-3",
-    "admin-og-4",
-    "admin-og-5",
-    "admin-og-6",
-    "admin-og-7",
-    "admin-og-8",
-  ];
+  let users = {
+    "admin-og-1": 0,
+    "admin-og-2": 1,
+    "admin-og-3": 2,
+    "admin-og-4": 3,
+    "admin-og-5": 4,
+    "admin-og-6": 5,
+    "admin-og-7": 6,
+    "admin-og-8": 7,
+  };
 
   useEffect(() => {
+    const socket = io("http://localhost:4000", { transports: ["websocket"] });
+    socket.on("hexagon", (newData) => {
+      if (data) {
+        data[users[newData.user]].tiles = newData.grid;
+        setData(data);
+      }
+    });
     const token = localStorage.getItem("token");
+    const config = {
+      headers: { "auth-token": token },
+    };
     axios.get("map/").then((res) => {
-      setData(res.data.data[0].Map);
+      setData(res.data.data);
     });
     if (token) {
-      const config = {
-        headers: { "auth-token": token },
-      };
-      axios
-        .get("user/", config)
-        .then((res) => {
-          setIsLogged(true);
-        })
-        .catch((err) => console.error(err));
+      axios.get("user/", config).then((res) => {
+        setIsLogged(true);
+      });
     } else {
       setIsLogged(false);
     }
@@ -167,13 +170,13 @@ export default function Page(props) {
         style={{ marginTop: "80px" }}
       >
         {data
-          ? og.map((layout) => {
+          ? data.map((layout) => {
               return (
                 <div
                   className="flex-column text-center"
-                  onClick={() => selectedHex(data[layout])}
+                  onClick={() => selectedHex(layout.tiles)}
                 >
-                  <p style={{ marginBottom: "-6vh" }}>Group {layout}</p>
+                  <p style={{ marginBottom: "-6vh" }}>Group {layout.name}</p>
                   <HexGrid width="50vw" height="50vh">
                     <Layout
                       size={{ x: 7, y: 7 }}
@@ -181,7 +184,7 @@ export default function Page(props) {
                       spacing={1.02}
                       origin={{ x: 0, y: 0 }}
                     >
-                      {data[layout].map((hex, i) => {
+                      {layout.tiles.map((hex, i) => {
                         return (
                           <StyledHex
                             key={i}

@@ -30,7 +30,7 @@ import io from "socket.io-client";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
-//const socket = io("http://localhost:4000");
+const socket = io("http://localhost:4000", { transports: ["websocket"] });
 
 /* the Map function contains the layout of the hexagons, 
   individual hexagons are built from sample.json data which 
@@ -311,7 +311,7 @@ function Map(props) {
             hex.color = hex.color.replace(" active", "");
           }
           if (HexUtils.equals(hex, descTile)) {
-            if (hex.color.includes(" active") === false) {
+            if (hex.color.length < 7) {
               hex.color += " active";
             }
           } else {
@@ -391,7 +391,7 @@ function Map(props) {
                     hex.color !== user.name &&
                     hex.color === String(item)
                   ) {
-                    if (hex.color.includes(" active") === false) {
+                    if (hex.color.length < 7) {
                       hex.color += " active";
                     }
                   }
@@ -399,6 +399,12 @@ function Map(props) {
                 })
               : GridGenerator.hexagon(3);
             setHexagons(coloredHexas);
+            const data = {
+              user: login.data.data.name,
+              grid: coloredHexas,
+              color: descTile.color,
+            };
+            socket.emit("hexagon", data);
             setSuccessShow(false);
             setChangeColor({ status: true, error: "" });
           })

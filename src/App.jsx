@@ -23,6 +23,7 @@ function App() {
         integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
         crossorigin="anonymous"
       />
+      <script src="/socket.io/socket.io.js"></script>
       <div className="App">
         <Router>
           <Switch>
