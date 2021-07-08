@@ -39,7 +39,6 @@ export default function Page(props) {
       setLeaderboard(newData.data);
     });
     const token = localStorage.getItem("token");
-    console.log(localStorage.hasOwnProperty("token"));
     if (token) {
       const config = {
         headers: { "auth-token": token },
