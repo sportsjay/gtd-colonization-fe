@@ -49,7 +49,7 @@ function StyledHex(props) {
 }
 
 function SuccessModal(props) {
-  if (props.descTile.type === "qna") {
+  if (props.descTile.type === "question") {
     return (
       <Modal
         show={props.show}
@@ -74,7 +74,7 @@ function SuccessModal(props) {
         </ModalFooter>
       </Modal>
     );
-  } else {
+  } else if (props.descTile.type === "station") {
     return (
       <Modal
         show={props.show}
@@ -84,17 +84,40 @@ function SuccessModal(props) {
       >
         <ModalHeader closeButton>
           <ModalTitle>
-            Zonk/Challenge coordinate = {props.descTile.q} {props.descTile.r}{" "}
-            {props.descTile.s}
+            Challenge! Clink link below.<br></br>
+            <a target="_blank" href={props.descTile.question}></a>
           </ModalTitle>
         </ModalHeader>
         <ModalFooter>
-          <Button variant="primary" onClick={props.clickHex}>
-            Confirm
-          </Button>
+          <Form>
+            <Form.Group>
+              <Form.Control
+                placeholder="Answer"
+                aria-describedby="basic-addon1"
+                ref={props.answer}
+              ></Form.Control>
+            </Form.Group>
+            <Button onClick={props.clickHex}>Submit</Button>
+          </Form>
         </ModalFooter>
       </Modal>
     );
+  } else {
+    <Modal
+      show={props.show}
+      onHide={props.onHide}
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <ModalHeader closeButton>
+        <ModalTitle>{props.descTile.question}</ModalTitle>
+      </ModalHeader>
+      <ModalFooter>
+        <Button variant="primary" onClick={props.clickHex}>
+          Confirm
+        </Button>
+      </ModalFooter>
+    </Modal>;
   }
 }
 
@@ -172,7 +195,7 @@ function FailModal(props) {
         centered
       >
         <ModalHeader closeButton>
-          <ModalTitle>Random error</ModalTitle>
+          <ModalTitle>Please choose highlighted tile!</ModalTitle>
         </ModalHeader>
         <ModalFooter>
           <Button onClick={props.onHide}>Close</Button>
@@ -254,7 +277,12 @@ function Map(props) {
   // }); // to change users
   const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to check whether answer is right or wrong. If wrong, then dont randomize for next color
   const [adjacent, setAdjacent] = useState("none"); // state to save adjacent tile colors
-  const color = adjacent.includes("none") ? "Select a tile first!" : adjacent;
+  const [freeMove, setFreeMove] = useState(false);
+  const color = adjacent.includes("none")
+    ? "Select a tile first!"
+    : freeMove
+    ? "Choose anywhere on the map!"
+    : adjacent;
 
   const [descTile, setDescTile] = useState({
     q: -3,
@@ -353,6 +381,13 @@ function Map(props) {
     item = item ? String(item) : adjacent; // if not able to change color (due to wrong answer), item will be assigned as adjacent
 
     adjcoords = adjcoords.filter((adj) => adj.color === item); // filter coordinates that has the same color as adjacent
+    if (adjcolors.length === 0) {
+      console.log("here?");
+      item = "none";
+      adjcoords = [];
+      setAdjacent(String(item));
+      setFreeMove(true);
+    }
 
     if (token) {
       axios
@@ -415,35 +450,46 @@ function Map(props) {
     const config = {
       headers: { "auth-token": token },
     };
-    axios
-      .post(
-        "map/move",
-        {
-          name: user.name,
-          newTileColor: color + " active",
-          q: source.state.hex.q,
-          r: source.state.hex.r,
-          s: source.state.hex.s,
-        },
-        config
-      )
-      .then((res) => {
-        setDescTile({
-          q: source.state.hex.q,
-          r: source.state.hex.r,
-          s: source.state.hex.s,
-          owner: owner,
-          type: type,
-          color: color,
-          question: question,
-          answer: answer,
+    console.log(user);
+    if (
+      (HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1 &&
+        user.onProgress.currentTile.q !== null) ||
+      HexUtils.equals(source.state.hex, user.onProgress.currentTile) ||
+      user.onProgress.currentTile.q === null ||
+      freeMove
+    ) {
+      axios
+        .post(
+          "map/move",
+          {
+            name: user.name,
+            newTileColor: color + " active",
+            q: source.state.hex.q,
+            r: source.state.hex.r,
+            s: source.state.hex.s,
+          },
+          config
+        )
+        .then((res) => {
+          setDescTile({
+            q: source.state.hex.q,
+            r: source.state.hex.r,
+            s: source.state.hex.s,
+            owner: owner,
+            type: type,
+            color: color,
+            question: question,
+            answer: answer,
+          });
+          setSuccessShow(true);
+        })
+        .catch((err) => {
+          setChangeColor({ status: true, error: err.response.data.message });
+          setFailShow(true);
         });
-        setSuccessShow(true);
-      })
-      .catch((err) => {
-        setChangeColor({ status: true, error: err.response.data.message });
-        setFailShow(true);
-      });
+    } else {
+      setFailShow(true);
+    }
   }
 
   return (

@@ -35,7 +35,11 @@ export default function Page(props) {
   ]);
   const colors = ["red", "green", "blue", "yellow", "orange", "violet"];
   useEffect(() => {
+    socket.on("leaderboardUpdate", (newData) => {
+      setLeaderboard(newData.data);
+    });
     const token = localStorage.getItem("token");
+    console.log(localStorage.hasOwnProperty("token"));
     if (token) {
       const config = {
         headers: { "auth-token": token },
@@ -51,6 +55,7 @@ export default function Page(props) {
       setIsLogged(false);
     }
     axios.get("user/getuserprogress").then((res) => {
+      console.log(res.data.data);
       setLeaderboard(res.data.data);
     });
     let users = {
@@ -63,13 +68,6 @@ export default function Page(props) {
       "admin-og-7": 6,
       "admin-og-8": 7,
     };
-    socket.on("hexagon", (newData) => {
-      let newCompletedColor = leaderboard[users[newData.user]].completedColor;
-      newCompletedColor.push(newData.color.replace(/ active/g, ""));
-      let newSet = [...new Set(newCompletedColor)];
-      leaderboard[users[newData.user]].completedColor = newSet;
-      setLeaderboard(leaderboard);
-    });
   }, [socket]);
 
   return (
@@ -138,28 +136,32 @@ export default function Page(props) {
               </tr>
             </thead>
             <tbody>
-              {leaderboard.map((leaderboard) => {
-                return (
-                  <tr>
-                    <td>{leaderboard.name}</td>
-                    {colors.map((colors) => {
-                      if (leaderboard.completedColor.includes(colors)) {
-                        return (
-                          <td>
-                            <i class="fas fa-check" />
-                          </td>
-                        );
-                      } else {
-                        return (
-                          <td>
-                            <i class="fas fa-times" />
-                          </td>
-                        );
-                      }
-                    })}
-                  </tr>
-                );
-              })}
+              {leaderboard ? (
+                leaderboard.map((leaderboard) => {
+                  return (
+                    <tr>
+                      <td>{leaderboard.name}</td>
+                      {colors.map((colors) => {
+                        if (leaderboard.completedColor.includes(colors)) {
+                          return (
+                            <td>
+                              <i class="fas fa-check" />
+                            </td>
+                          );
+                        } else {
+                          return (
+                            <td>
+                              <i class="fas fa-times" />
+                            </td>
+                          );
+                        }
+                      })}
+                    </tr>
+                  );
+                })
+              ) : (
+                <p>Nothing here!</p>
+              )}
             </tbody>
           </Table>
         </Card>

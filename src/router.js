@@ -4,7 +4,7 @@ import MapPage from "./components/map";
 import ViewerPage from "./components/viewer";
 
 export const routes = [
-  { id: 0, name: "home", path: "/", component: HomePage, isPrivate: false },
+  { id: 0, name: "Home", path: "/", component: HomePage, isPrivate: false },
   {
     id: 1,
     name: "login",
@@ -12,10 +12,10 @@ export const routes = [
     component: LoginPage,
     isPrivate: false,
   },
-  { id: 2, name: "map", path: "/map", component: MapPage, isPrivate: true },
+  { id: 2, name: "Map", path: "/map", component: MapPage, isPrivate: true },
   {
     id: 3,
-    name: "viewer",
+    name: "Viewer",
     path: "/viewer",
     component: ViewerPage,
     isPrivate: false,

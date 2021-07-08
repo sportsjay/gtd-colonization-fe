@@ -51,6 +51,7 @@ export default function ViewerPage(props) {
       setMaps(_maps);
     });
     const token = localStorage.getItem("token");
+    console.log(token);
     const config = {
       headers: { "auth-token": token },
     };

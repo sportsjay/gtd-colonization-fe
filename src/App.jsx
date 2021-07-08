@@ -24,9 +24,11 @@ function PrivateRoute(props) {
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  console.log(token);
 
   useEffect(() => {
     setToken(localStorage.getItem("token"));
+    console.log(localStorage.hasOwnProperty("token"));
     return () => {
       handleClick();
     };
