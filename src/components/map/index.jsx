@@ -85,7 +85,9 @@ function SuccessModal(props) {
         <ModalHeader closeButton>
           <ModalTitle>
             Challenge! Clink link below.<br></br>
-            <a target="_blank" href={props.descTile.question}></a>
+            <a target="_blank" href={props.descTile.question}>
+              Yuhu!
+            </a>
           </ModalTitle>
         </ModalHeader>
         <ModalFooter>
@@ -299,7 +301,7 @@ function Map(props) {
       headers: { "auth-token": token },
     };
 
-    let ans = descTile.question ? answer.current.value : ""; // to check if there is question, it will be current anwser, else empty string
+    let ans = descTile.answer ? answer.current.value : ""; // to check if there is question, it will be current anwser, else empty string
     let adjcolors = []; // to store colors that is adjacent to current tile
     let adjcoords = []; // to store coordinates that is adjacent to current tile
 
