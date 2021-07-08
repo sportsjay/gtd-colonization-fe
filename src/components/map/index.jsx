@@ -103,106 +103,51 @@ function SuccessModal(props) {
       </Modal>
     );
   } else {
-    <Modal
-      show={props.show}
-      onHide={props.onHide}
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <ModalHeader closeButton>
-        <ModalTitle>{props.descTile.question}</ModalTitle>
-      </ModalHeader>
-      <ModalFooter>
-        <Button variant="primary" onClick={props.clickHex}>
-          Confirm
-        </Button>
-      </ModalFooter>
-    </Modal>;
+    return (
+      <Modal
+        show={props.show}
+        onHide={props.onHide}
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <ModalHeader closeButton>
+          <ModalTitle>{props.descTile.question}</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
+          <Button variant="primary" onClick={props.clickHex}>
+            Confirm
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
   }
 }
 
 function FailModal(props) {
-  if (props.message === "Answer is not correct") {
-    return (
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        aria-labelledby="container-modal-title-vcenter"
-        centered
-      >
-        <ModalTitle>Wrong Answer!</ModalTitle>
-        <ModalFooter>
-          <Button onClick={props.onHide}>Close</Button>
-        </ModalFooter>
-      </Modal>
-    );
-  } else if (props.message === "Tile is already completed") {
-    return (
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        aria-labelledby="container-modal-title-vcenter"
-        centered
-      >
-        <ModalHeader closeButton>
-          <ModalTitle>You have selected that tile before!</ModalTitle>
-        </ModalHeader>
-        <ModalFooter>
-          <Button onClick={props.onHide}>Close</Button>
-        </ModalFooter>
-      </Modal>
-    );
-  } else if (props.message === "color chosen doesn't match") {
-    return (
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        aria-labelledby="container-modal-title-vcenter"
-        centered
-      >
-        <ModalHeader closeButton>
-          <ModalTitle>Please choose the highlighted tile!</ModalTitle>
-        </ModalHeader>
-        <ModalFooter>
-          <Button onClick={props.onHide}>Close</Button>
-        </ModalFooter>
-      </Modal>
-    );
-  } else if (props.message === "Still on progress") {
-    return (
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        aria-labelledby="container-modal-title-vcenter"
-        centered
-      >
-        <ModalHeader closeButton>
-          <ModalTitle>
-            You have selected a tile! <br></br>Do finish it first to proceed!
-          </ModalTitle>
-        </ModalHeader>
-        <ModalFooter>
-          <Button onClick={props.onHide}>Close</Button>
-        </ModalFooter>
-      </Modal>
-    );
-  } else {
-    return (
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        aria-labelledby="container-modal-title-vcenter"
-        centered
-      >
-        <ModalHeader closeButton>
-          <ModalTitle>Please choose highlighted tile!</ModalTitle>
-        </ModalHeader>
-        <ModalFooter>
-          <Button onClick={props.onHide}>Close</Button>
-        </ModalFooter>
-      </Modal>
-    );
-  }
+  const messageHandler = {
+    "Answer is not correct": "Wrong Answer!",
+    "Tile is already completed": "You have selected that tile before!",
+    "color chosen doesn't match": "Please choose the highlighted tile!",
+    "Still on progress":
+      "You have selected a tile! <br></br>Do finish it first to proceed!",
+  };
+  return (
+    <Modal
+      show={props.show}
+      onHide={props.onHide}
+      aria-labelledby="container-modal-title-vcenter"
+      centered
+    >
+      <ModalHeader closeButton>
+        <ModalTitle>
+          {messageHandler[props.message] || "Please choose highlighted tile!"}
+        </ModalTitle>
+      </ModalHeader>
+      <ModalFooter>
+        <Button onClick={props.onHide}>Close</Button>
+      </ModalFooter>
+    </Modal>
+  );
 }
 
 function LoginModal(props) {
