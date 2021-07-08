@@ -1,4 +1,4 @@
-const baseURL = "http://localhost:4000";
+const baseURL = "https://ttc-service.herokuapp.com/";
 
 export const config = {
   SOCKET_URL: `${baseURL}`,
