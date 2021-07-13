@@ -15,12 +15,11 @@ import "../map/index.css";
 
 import axios from "axios";
 import { SocketContext } from "../../utils/socket";
-
-// const socket = io("http://localhost:4000", { transports: ["websocket"] });
+import { Loading } from "../../utils/loading";
 
 export default function Page(props) {
   const socket = useContext(SocketContext);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState({ name: "" });
   const [leaderboard, setLeaderboard] = useState([
@@ -35,6 +34,7 @@ export default function Page(props) {
   ]);
   const colors = ["red", "green", "blue", "yellow", "orange", "violet"];
   useEffect(() => {
+    setIsLoading(true);
     socket.on("leaderboardUpdate", (newData) => {
       setLeaderboard(newData.data);
     });
@@ -54,19 +54,9 @@ export default function Page(props) {
       setIsLogged(false);
     }
     axios.get("user/getuserprogress").then((res) => {
-      console.log(res.data.data);
+      setIsLoading(false);
       setLeaderboard(res.data.data);
     });
-    let users = {
-      "admin-og-1": 0,
-      "admin-og-2": 1,
-      "admin-og-3": 2,
-      "admin-og-4": 3,
-      "admin-og-5": 4,
-      "admin-og-6": 5,
-      "admin-og-7": 6,
-      "admin-og-8": 7,
-    };
   }, [socket]);
 
   return (
@@ -170,6 +160,7 @@ export default function Page(props) {
         <Route exact path="/map"></Route>
         <Route exact path="/viewer"></Route>
       </Switch>
+      <Loading open={isLoading}></Loading>
     </>
   );
 }

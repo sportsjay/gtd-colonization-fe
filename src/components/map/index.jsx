@@ -21,6 +21,7 @@ import {
 } from "react-bootstrap";
 
 import "./index.css";
+import { Loading } from "../../utils/loading";
 
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -131,7 +132,7 @@ function FailModal(props) {
     "Tile is already completed": "You have selected that tile before!",
     "color chosen doesn't match": "Please choose the highlighted tile!",
     "Still on progress":
-      "You have selected a tile! <br></br>Do finish it first to proceed!",
+      "You have selected a tile! Do finish it first to proceed!",
   };
   return (
     <Modal
@@ -222,12 +223,10 @@ function Map(props) {
   //   type: String,
   //   default: "none",
   // }); // to change users
+  const [isLoading, setIsLoading] = useState(false);
   const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to check whether answer is right or wrong. If wrong, then dont randomize for next color
   const [adjacent, setAdjacent] = useState("none"); // state to save adjacent tile colors
-  const [freeMove, setFreeMove] = useState(false);
   const color = adjacent.includes("none")
-    ? "Select a tile first!"
-    : freeMove
     ? "Choose anywhere on the map!"
     : adjacent;
 
@@ -254,6 +253,7 @@ function Map(props) {
 
   // to check login credentials
   useEffect(() => {
+    setIsLoading(true);
     const token = localStorage.getItem("token");
     if (token) {
       // const decoded = jwt_decode(token);
@@ -267,6 +267,7 @@ function Map(props) {
           // console.log(login.data.data);
           setHexagons(map.data.data[users[login.data.data.name]].tiles);
           setAdjacent(login.data.data.nextTileColor);
+          setIsLoading(false);
         })
       );
     } else {
@@ -291,11 +292,14 @@ function Map(props) {
         })
       : GridGenerator.hexagon(3);
     setHexagons(coloredHexas);
+    setIsLoading(false);
   }, [socket, descTile]);
 
   // function to handle on click
   // use this function if success
   function clickHex() {
+    setIsLoading(true);
+    setSuccessShow(false);
     const token = localStorage.getItem("token");
     const config = {
       headers: { "auth-token": token },
@@ -329,11 +333,9 @@ function Map(props) {
 
     adjcoords = adjcoords.filter((adj) => adj.color === item); // filter coordinates that has the same color as adjacent
     if (adjcolors.length === 0) {
-      console.log("here?");
       item = "none";
       adjcoords = [];
       setAdjacent(String(item));
-      setFreeMove(true);
     }
 
     if (token) {
@@ -381,29 +383,31 @@ function Map(props) {
               color: descTile.color,
             };
             socket.emit("hexagon", data);
-            setSuccessShow(false);
             setChangeColor({ status: true, error: "" });
+            setIsLoading(false);
           })
         )
         .catch((err) => {
+          setIsLoading(false);
           setChangeColor({ status: false, error: err.response.data.message });
+          setSuccessShow(true);
           setFailShow(true);
         });
     }
   }
   //a function to pass all the props and change every state
   function selectedHex(event, source, owner, type, color, question, answer) {
+    setIsLoading(true);
     const token = localStorage.getItem("token");
     const config = {
       headers: { "auth-token": token },
     };
-    console.log(user);
+    console.log(adjacent);
     if (
       (HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1 &&
         user.onProgress.currentTile.q !== null) ||
       HexUtils.equals(source.state.hex, user.onProgress.currentTile) ||
-      user.onProgress.currentTile.q === null ||
-      freeMove
+      adjacent === "none"
     ) {
       axios
         .post(
@@ -433,124 +437,97 @@ function Map(props) {
         .catch((err) => {
           setChangeColor({ status: true, error: err.response.data.message });
           setFailShow(true);
+          setIsLoading(false);
         });
     } else {
       setFailShow(true);
+      setIsLoading(false);
     }
   }
 
   return (
-    <>
-      <div
-        className="d-flex"
-        style={{ height: "100vh", display: "flex", flexDirection: "column" }}
-      >
-        <header
-          style={{
-            marginTop: 80,
-            width: "100%",
-            // background: "",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+    <React.Fragment>
+      <>
+        <div
+          className="d-flex"
+          style={{ height: "100vh", display: "flex", flexDirection: "column" }}
         >
-          <Row>
-            <Col xs={20}>
-              <Badge>Your next color is:</Badge>
-            </Col>
-            <Col>
-              <Badge pill className={color} style={{ marginLeft: "-15px" }}>
-                {color}
-              </Badge>
-            </Col>
-          </Row>
-        </header>
-        <HexGrid width={"100vw"} height={"100vh"}>
-          <Layout
-            size={{ x: 6, y: 6 }}
-            flat={false}
-            spacing={1.02}
-            origin={{ x: 0, y: 0 }}
+          <header
+            style={{
+              marginTop: 80,
+              width: "100%",
+              // background: "",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            {hexagons ? (
-              hexagons.map((hex, i) => {
-                return (
-                  <StyledHex
-                    key={i}
-                    q={hex.q}
-                    r={hex.r}
-                    s={hex.s}
-                    owner={hex.owner}
-                    type={hex.type}
-                    color={hex.color}
-                    className={hex.color}
-                    onClick={(_, hexCoord) =>
-                      selectedHex(
-                        _,
-                        hexCoord,
-                        hex.owner,
-                        hex.type,
-                        hex.color,
-                        hex.question,
-                        hex.answer
-                      )
-                    }
-                  />
-                );
-              })
-            ) : (
-              <p>Not loaded!</p>
-            )}
-          </Layout>
-        </HexGrid>
-        <SuccessModal
-          show={successShow}
-          onHide={successClose}
-          clickHex={clickHex}
-          descTile={descTile}
-          answer={answer}
-        ></SuccessModal>
-        <FailModal
-          show={failShow}
-          onHide={failClose}
-          message={changeColor.error}
-        ></FailModal>
-        <LoginModal show={isNotLogged}></LoginModal>
-      </div>
-      {/* <div className="d-flex flex-wrap justify-content-center align-items-center h-50">
-        {layout.map((layout) => {
-          return (
-            <div className="flex-column text-center">
-              <p style={{ marginBottom: "-40px" }}>Group {layout.id}</p>
-              <HexGrid width={layout.width} height={layout.height}>
-                <Layout
-                  size={layout.size}
-                  flat={false}
-                  spacing={1.02}
-                  origin={layout.origin}
-                >
-                  {layout.data.map((hex, i) => {
-                    return (
-                      <StyledHex
-                        key={i}
-                        q={hex.q}
-                        r={hex.r}
-                        s={hex.s}
-                        owner={hex.owner}
-                        type={hex.type}
-                        color={hex.color}
-                        className={hex.color}
-                      ></StyledHex>
-                    );
-                  })}
-                </Layout>
-              </HexGrid>
-            </div>
-          );
-        })}
-      </div> */}
-    </>
+            <Row>
+              <Col xs={20}>
+                <Badge>Your next color is:</Badge>
+              </Col>
+              <Col>
+                <Badge pill className={color} style={{ marginLeft: "-15px" }}>
+                  {color}
+                </Badge>
+              </Col>
+            </Row>
+          </header>
+          <HexGrid width={"100vw"} height={"100vh"}>
+            <Layout
+              size={{ x: 6, y: 6 }}
+              flat={false}
+              spacing={1.02}
+              origin={{ x: 0, y: 0 }}
+            >
+              {hexagons ? (
+                hexagons.map((hex, i) => {
+                  return (
+                    <StyledHex
+                      key={i}
+                      q={hex.q}
+                      r={hex.r}
+                      s={hex.s}
+                      owner={hex.owner}
+                      type={hex.type}
+                      color={hex.color}
+                      className={hex.color}
+                      onClick={(_, hexCoord) =>
+                        selectedHex(
+                          _,
+                          hexCoord,
+                          hex.owner,
+                          hex.type,
+                          hex.color,
+                          hex.question,
+                          hex.answer
+                        )
+                      }
+                    />
+                  );
+                })
+              ) : (
+                <p>Nothing here</p>
+              )}
+            </Layout>
+          </HexGrid>
+          <SuccessModal
+            show={successShow}
+            onHide={successClose}
+            clickHex={clickHex}
+            descTile={descTile}
+            answer={answer}
+          ></SuccessModal>
+          <FailModal
+            show={failShow}
+            onHide={failClose}
+            message={changeColor.error}
+          ></FailModal>
+          <LoginModal show={isNotLogged}></LoginModal>
+          <Loading open={isLoading}></Loading>
+        </div>
+      </>
+    </React.Fragment>
   );
 }
 

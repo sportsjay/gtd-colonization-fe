@@ -4,6 +4,7 @@ import { Modal, Button } from "react-bootstrap";
 
 import axios from "axios";
 import { SocketContext } from "../../utils/socket";
+import { Loading } from "../../utils/loading";
 
 import "./index.css";
 
@@ -24,7 +25,7 @@ export default function ViewerPage(props) {
     { tiles: [], name: "" },
     { tiles: [], name: "" },
   ]);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
 
   const [show, setShow] = useState(false);
@@ -44,6 +45,7 @@ export default function ViewerPage(props) {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     socket.on("mapUpdate", (newData) => {
       const _maps = newData.data;
       console.log(_maps);
@@ -57,6 +59,7 @@ export default function ViewerPage(props) {
     };
     axios.get("map/").then((res) => {
       setMaps(res.data.data);
+      setIsLoading(false);
     });
     if (token) {
       axios.get("user/", config).then((res) => {
@@ -161,6 +164,7 @@ export default function ViewerPage(props) {
           : console.log("nothing")}
       </div>
       <Zoom show={show} onHide={handleClose}></Zoom>
+      <Loading open={isLoading}></Loading>
     </>
   );
 }
