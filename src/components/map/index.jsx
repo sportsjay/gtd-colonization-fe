@@ -414,7 +414,7 @@ function Map(props) {
           "map/move",
           {
             name: user.name,
-            newTileColor: color + " active",
+            newTileColor: color.includes(" active") ? color : color + " active",
             q: source.state.hex.q,
             r: source.state.hex.r,
             s: source.state.hex.s,
