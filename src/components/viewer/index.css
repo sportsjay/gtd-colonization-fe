@@ -3,34 +3,51 @@ svg g .hexagon {
   fill-opacity: 0.6;
 }
 
+svg g.zonk .hexagon {
+  fill: #000;
+}
+
 svg g.active .hexagon {
   animation-duration: 2s;
   animation-name: pulse;
   animation-iteration-count: infinite;
 }
 
+svg g.admin-og-1 .hexagon {
+  fill: #d1d1d1;
+  fill-opacity: 0.9;
+  transition: ease-out 0.1s;
+  filter: brightness(0.8);
+}
+
 svg g.red .hexagon {
   fill: red;
+  fill-opacity: 0.8;
 }
 
 svg g.yellow .hexagon {
   fill: rgb(255, 238, 0);
+  fill-opacity: 0.8;
 }
 
 svg g.blue .hexagon {
   fill: blue;
+  fill-opacity: 0.8;
 }
 
 svg g.orange .hexagon {
   fill: orange;
+  fill-opacity: 0.8;
 }
 
 svg g.green .hexagon {
   fill: green;
+  fill-opacity: 0.8;
 }
 
 svg g.violet .hexagon {
   fill: violet;
+  fill-opacity: 0.8;
 }
 
 .red {
@@ -65,12 +82,12 @@ svg g.violet .hexagon {
 }
 @keyframes pulse {
   0% {
-    opacity: 0.9;
+    opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.2;
   }
   100% {
-    opacity: 0.9;
+    opacity: 1;
   }
 }

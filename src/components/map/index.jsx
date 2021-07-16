@@ -6,6 +6,7 @@ import {
   Hexagon,
   HexUtils,
   GridGenerator,
+  Text,
 } from "react-hexgrid";
 
 import ModalHeader from "react-bootstrap/esm/ModalHeader";
@@ -13,6 +14,7 @@ import {
   Modal,
   ModalFooter,
   ModalTitle,
+  ModalBody,
   Button,
   Form,
   Row,
@@ -50,6 +52,11 @@ function StyledHex(props) {
 }
 
 function SuccessModal(props) {
+  const title = {
+    station: "Station",
+    question: "Question",
+    challenge: "Challenge",
+  };
   if (props.descTile.type === "question") {
     return (
       <Modal
@@ -59,8 +66,9 @@ function SuccessModal(props) {
         centered
       >
         <ModalHeader closeButton>
-          <ModalTitle>{props.descTile.question}</ModalTitle>
+          <ModalTitle>{title[props.descTile.type]}</ModalTitle>
         </ModalHeader>
+        <ModalBody>{props.descTile.question}</ModalBody>
         <ModalFooter>
           <Form>
             <Form.Group>
@@ -84,13 +92,14 @@ function SuccessModal(props) {
         centered
       >
         <ModalHeader closeButton>
-          <ModalTitle>
-            Challenge! Clink link below.<br></br>
-            <a target="_blank" href={props.descTile.question}>
-              Yuhu!
-            </a>
-          </ModalTitle>
+          <ModalTitle>{title[props.descTile.type]}</ModalTitle>
         </ModalHeader>
+        <ModalBody>
+          Clink link below.<br></br>
+          <a target="_blank" href={props.descTile.question}>
+            Yuhu!
+          </a>
+        </ModalBody>
         <ModalFooter>
           <Form>
             <Form.Group>
@@ -114,8 +123,9 @@ function SuccessModal(props) {
         centered
       >
         <ModalHeader closeButton>
-          <ModalTitle>{props.descTile.question}</ModalTitle>
+          <ModalTitle>{title[props.descTile.type]}</ModalTitle>
         </ModalHeader>
+        <ModalBody>{props.descTile.question}</ModalBody>
         <ModalFooter>
           <Button variant="primary" onClick={props.clickHex}>
             Confirm
@@ -170,6 +180,32 @@ function LoginModal(props) {
           Login
         </Button>
       </ModalFooter>
+    </Modal>
+  );
+}
+
+function StationModal(props) {
+  const stationHandler = {
+    red: "1",
+    green: "2",
+    blue: "3",
+    violet: "4",
+    orange: "5",
+    yellow: "6",
+  };
+  console.log(props.type);
+  return (
+    <Modal
+      show={props.show}
+      onHide={props.onHide}
+      aria-labelledby="container-modal-title-vcenter"
+      centered
+    >
+      <ModalHeader closeButton>
+        <ModalTitle>
+          Welcome to Station {stationHandler[props.color]}!!
+        </ModalTitle>
+      </ModalHeader>
     </Modal>
   );
 }
@@ -245,6 +281,11 @@ function Map(props) {
 
   const [isNotLogged, setIsNotLogged] = useState(false); // to check whether logged in or not
 
+  const [stationShow, setStationShow] = useState(false); // to pop up station modal after answer correctly
+  const stationClose = () => {
+    setStationShow(false);
+  };
+
   const [successShow, setSuccessShow] = useState(false); //use to pop up Success Modal
   const successClose = () => setSuccessShow(false); //to close the Success Modal
 
@@ -312,7 +353,8 @@ function Map(props) {
     for (let i = 0; i < hexagons.length; i += 1) {
       if (
         HexUtils.distance(hexagons[i], descTile) === 1 &&
-        hexagons[i].color !== String(user.name)
+        hexagons[i].color !== String(user.name) &&
+        hexagons[i].type !== "zonk"
       ) {
         adjcolors.push(hexagons[i].color);
         adjcoords.push({
@@ -351,6 +393,7 @@ function Map(props) {
               q: descTile.q,
               r: descTile.r,
               s: descTile.s,
+              type: descTile.type,
               newTileColor: descTile.color,
               adjacentCoord: adjcoords,
             },
@@ -385,6 +428,9 @@ function Map(props) {
             socket.emit("hexagon", data);
             setChangeColor({ status: true, error: "" });
             setIsLoading(false);
+            if (descTile.type === "station") {
+              setStationShow(true);
+            }
           })
         )
         .catch((err) => {
@@ -482,7 +528,22 @@ function Map(props) {
             >
               {hexagons ? (
                 hexagons.map((hex, i) => {
-                  return (
+                  const diff =
+                    hex.type === "station"
+                      ? "S"
+                      : hex.type === "question"
+                      ? "Q"
+                      : hex.type === "challenge"
+                      ? "C"
+                      : "";
+                  return hex.type === "zonk" ? (
+                    <StyledHex
+                      q={hex.q}
+                      r={hex.r}
+                      s={hex.s}
+                      className="zonk"
+                    ></StyledHex>
+                  ) : (
                     <StyledHex
                       key={i}
                       q={hex.q}
@@ -503,7 +564,13 @@ function Map(props) {
                           hex.answer
                         )
                       }
-                    />
+                    >
+                      {hex.color === user.name ? (
+                        <Text>{diff}</Text>
+                      ) : (
+                        <Text></Text>
+                      )}
+                    </StyledHex>
                   );
                 })
               ) : (
@@ -524,6 +591,11 @@ function Map(props) {
             message={changeColor.error}
           ></FailModal>
           <LoginModal show={isNotLogged}></LoginModal>
+          <StationModal
+            show={stationShow}
+            onHide={stationClose}
+            color={descTile.color}
+          ></StationModal>
           <Loading open={isLoading}></Loading>
         </div>
       </>

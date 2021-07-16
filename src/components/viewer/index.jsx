@@ -97,7 +97,14 @@ export default function ViewerPage(props) {
                 origin={{ x: 0, y: 0 }}
               >
                 {descTile.map((hex, i) => {
-                  return (
+                  return hex.type === "zonk" ? (
+                    <StyledHex
+                      q={hex.q}
+                      r={hex.r}
+                      s={hex.s}
+                      className="zonk"
+                    ></StyledHex>
+                  ) : (
                     <StyledHex
                       key={i}
                       q={hex.q}
