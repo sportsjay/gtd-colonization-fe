@@ -32,6 +32,11 @@ svg g.admin-og-1 .hexagon {
   filter: brightness(0.8);
 }
 
+svg g.latest .hexagon {
+  fill: #5900ff;
+  fill-opacity: 0.8;
+}
+
 svg g.red .hexagon {
   fill: red;
   fill-opacity: 0.8;

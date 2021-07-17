@@ -84,6 +84,16 @@ function SuccessModal(props) {
       </Modal>
     );
   } else if (props.descTile.type === "station") {
+    const links = {
+      green: "https://drive.google.com/uc?id=1FW3pq2Lzw-pW_885rzW2eRIhbgExrLN1",
+      red: "https://drive.google.com/uc?id=1NeSAYZ4UbeiT-ivJUoRGLG6APQXwLOw4",
+      yellow:
+        "https://drive.google.com/uc?id=1kfK-eBSr0f-x13SvoZnT2x-EfchNes8C",
+      orange:
+        "https://drive.google.com/uc?id=1lD87a36F-4v_S7Cv5oLWWTCwKLEO4XvN",
+      blue: "https://drive.google.com/uc?id=1d_E7Wz45kSX4YCcc2B0D145GZ0QW_jPo",
+    };
+    const color = props.descTile.color.replace(" active", "");
     return (
       <Modal
         show={props.show}
@@ -95,9 +105,12 @@ function SuccessModal(props) {
           <ModalTitle>{title[props.descTile.type]}</ModalTitle>
         </ModalHeader>
         <ModalBody>
-          Clink link below.<br></br>
           <a target="_blank" href={props.descTile.question}>
-            Yuhu!
+            <img
+              src={links[color]}
+              alt="Click this link!"
+              style={{ width: 300 }}
+            ></img>
           </a>
         </ModalBody>
         <ModalFooter>
@@ -184,16 +197,15 @@ function LoginModal(props) {
   );
 }
 
-function StationModal(props) {
-  const stationHandler = {
-    red: "1",
-    green: "2",
-    blue: "3",
-    violet: "4",
-    orange: "5",
-    yellow: "6",
-  };
-  console.log(props.type);
+function AnswerModal(props) {
+  // const stationHandler = {
+  //   red: "1",
+  //   green: "2",
+  //   blue: "3",
+  //   violet: "4",
+  //   orange: "5",
+  //   yellow: "6",
+  // };
   return (
     <Modal
       show={props.show}
@@ -203,7 +215,8 @@ function StationModal(props) {
     >
       <ModalHeader closeButton>
         <ModalTitle>
-          Welcome to Station {stationHandler[props.color]}!!
+          {/* Welcome to Station {stationHandler[props.color]}!! */}
+          Answered Correctly.
         </ModalTitle>
       </ModalHeader>
     </Modal>
@@ -227,6 +240,7 @@ function Map(props) {
   };
   const [user, setUser] = useState({
     name: "",
+    haveAdjTile: false,
     // nextTileColor: {
     //   //store the next tile color that has been randomized
     //   type: String,
@@ -260,11 +274,9 @@ function Map(props) {
   //   default: "none",
   // }); // to change users
   const [isLoading, setIsLoading] = useState(false);
-  const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to check whether answer is right or wrong. If wrong, then dont randomize for next color
-  const [adjacent, setAdjacent] = useState("none"); // state to save adjacent tile colors
-  const color = adjacent.includes("none")
-    ? "Choose anywhere on the map!"
-    : adjacent;
+  const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to determine what kind of error
+  const [freeMode, setFreeMode] = useState(false);
+  const [putted, setPutted] = useState(false); // for tile before confirmed still set to active and not "latest"
 
   const [descTile, setDescTile] = useState({
     q: -3,
@@ -281,9 +293,9 @@ function Map(props) {
 
   const [isNotLogged, setIsNotLogged] = useState(false); // to check whether logged in or not
 
-  const [stationShow, setStationShow] = useState(false); // to pop up station modal after answer correctly
-  const stationClose = () => {
-    setStationShow(false);
+  const [answerShow, setAnswerShow] = useState(false); // to pop up station modal after answer correctly
+  const answerClose = () => {
+    setAnswerShow(false);
   };
 
   const [successShow, setSuccessShow] = useState(false); //use to pop up Success Modal
@@ -307,8 +319,15 @@ function Map(props) {
           setUser(login.data.data);
           // console.log(login.data.data);
           setHexagons(map.data.data[users[login.data.data.name]].tiles);
-          setAdjacent(login.data.data.nextTileColor);
           setIsLoading(false);
+          if (login.data.data.haveAdjTile === false) {
+            setFreeMode(true);
+          } else {
+            setFreeMode(false);
+          }
+          if (login.data.data.onProgress.status === false) {
+            setPutted(true);
+          }
         })
       );
     } else {
@@ -347,7 +366,6 @@ function Map(props) {
     };
 
     let ans = descTile.answer ? answer.current.value : ""; // to check if there is question, it will be current anwser, else empty string
-    let adjcolors = []; // to store colors that is adjacent to current tile
     let adjcoords = []; // to store coordinates that is adjacent to current tile
 
     for (let i = 0; i < hexagons.length; i += 1) {
@@ -356,7 +374,6 @@ function Map(props) {
         hexagons[i].color !== String(user.name) &&
         hexagons[i].type !== "zonk"
       ) {
-        adjcolors.push(hexagons[i].color);
         adjcoords.push({
           q: hexagons[i].q,
           r: hexagons[i].r,
@@ -364,20 +381,6 @@ function Map(props) {
           color: hexagons[i].color,
         });
       }
-    }
-    adjcolors = [...new Set(adjcolors)];
-    let item;
-    if (changeColor.status) {
-      item = adjcolors[Math.floor(Math.random() * adjcolors.length)];
-      setAdjacent(String(item)); //randomized adjacent color
-    }
-    item = item ? String(item) : adjacent; // if not able to change color (due to wrong answer), item will be assigned as adjacent
-
-    adjcoords = adjcoords.filter((adj) => adj.color === item); // filter coordinates that has the same color as adjacent
-    if (adjcolors.length === 0) {
-      item = "none";
-      adjcoords = [];
-      setAdjacent(String(item));
     }
 
     if (token) {
@@ -389,7 +392,6 @@ function Map(props) {
             {
               name: user.name,
               answer: ans,
-              nextColor: String(item),
               q: descTile.q,
               r: descTile.r,
               s: descTile.s,
@@ -409,8 +411,7 @@ function Map(props) {
                     hex.color = user.name;
                   } else if (
                     HexUtils.distance(descTile, hex) === 1 &&
-                    hex.color !== user.name &&
-                    hex.color === String(item)
+                    hex.color !== user.name
                   ) {
                     if (hex.color.length < 7) {
                       hex.color += " active";
@@ -426,11 +427,15 @@ function Map(props) {
               color: descTile.color,
             };
             socket.emit("hexagon", data);
+            if (adjcoords.length > 0) {
+              setFreeMode(false);
+            } else {
+              setFreeMode(true);
+            }
             setChangeColor({ status: true, error: "" });
             setIsLoading(false);
-            if (descTile.type === "station") {
-              setStationShow(true);
-            }
+            setAnswerShow(true);
+            setPutted(true);
           })
         )
         .catch((err) => {
@@ -448,12 +453,11 @@ function Map(props) {
     const config = {
       headers: { "auth-token": token },
     };
-    console.log(adjacent);
     if (
-      (HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1 &&
-        user.onProgress.currentTile.q !== null) ||
+      HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1 ||
+      user.onProgress.currentTile.q === null ||
       HexUtils.equals(source.state.hex, user.onProgress.currentTile) ||
-      adjacent === "none"
+      freeMode
     ) {
       axios
         .post(
@@ -468,6 +472,7 @@ function Map(props) {
           config
         )
         .then((res) => {
+          setPutted(false);
           setDescTile({
             q: source.state.hex.q,
             r: source.state.hex.r,
@@ -490,7 +495,6 @@ function Map(props) {
       setIsLoading(false);
     }
   }
-
   return (
     <React.Fragment>
       <>
@@ -501,6 +505,7 @@ function Map(props) {
           <header
             style={{
               marginTop: 80,
+              marginBottom: -80,
               width: "100%",
               // background: "",
               display: "flex",
@@ -509,14 +514,7 @@ function Map(props) {
             }}
           >
             <Row>
-              <Col xs={20}>
-                <Badge>Your next color is:</Badge>
-              </Col>
-              <Col>
-                <Badge pill className={color} style={{ marginLeft: "-15px" }}>
-                  {color}
-                </Badge>
-              </Col>
+              {freeMode ? <Badge>Click any tile!</Badge> : <Badge></Badge>}
             </Row>
           </header>
           <HexGrid width={"100vw"} height={"100vh"}>
@@ -543,6 +541,31 @@ function Map(props) {
                       s={hex.s}
                       className="zonk"
                     ></StyledHex>
+                  ) : HexUtils.equals(hex, user.onProgress.currentTile) &&
+                    putted ? (
+                    <StyledHex
+                      key={i}
+                      q={hex.q}
+                      r={hex.r}
+                      s={hex.s}
+                      owner={hex.owner}
+                      type={hex.type}
+                      color={hex.color}
+                      className="latest"
+                      onClick={(_, hexCoord) =>
+                        selectedHex(
+                          _,
+                          hexCoord,
+                          hex.owner,
+                          hex.type,
+                          hex.color,
+                          hex.question,
+                          hex.answer
+                        )
+                      }
+                    >
+                      <Text>{diff}</Text>
+                    </StyledHex>
                   ) : (
                     <StyledHex
                       key={i}
@@ -591,11 +614,11 @@ function Map(props) {
             message={changeColor.error}
           ></FailModal>
           <LoginModal show={isNotLogged}></LoginModal>
-          <StationModal
-            show={stationShow}
-            onHide={stationClose}
+          <AnswerModal
+            show={answerShow}
+            onHide={answerClose}
             color={descTile.color}
-          ></StationModal>
+          ></AnswerModal>
           <Loading open={isLoading}></Loading>
         </div>
       </>
