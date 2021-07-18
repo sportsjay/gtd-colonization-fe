@@ -18,9 +18,10 @@ import {
   Button,
   Form,
   Row,
-  Col,
   Badge,
 } from "react-bootstrap";
+
+import { Winner } from "./winner";
 
 import "./index.css";
 import { Loading } from "../../utils/loading";
@@ -64,6 +65,7 @@ function SuccessModal(props) {
         onHide={props.onHide}
         aria-labelledby="container-modal-title-vcenter"
         centered
+        size="lg"
       >
         <ModalHeader closeButton>
           <ModalTitle>{title[props.descTile.type]}</ModalTitle>
@@ -134,6 +136,7 @@ function SuccessModal(props) {
         onHide={props.onHide}
         aria-labelledby="contained-modal-title-vcenter"
         centered
+        size="lg"
       >
         <ModalHeader closeButton>
           <ModalTitle>{title[props.descTile.type]}</ModalTitle>
@@ -246,11 +249,7 @@ function Map(props) {
     //   type: String,
     //   default: "none",
     // },
-    // completedColor: {
-    //   //keep track of unique color of all tiles completed
-    //   type: Array,
-    //   default: [],
-    // },
+    completedColor: [],
     // completedTiles: {
     //   //keep track of all tiles completed
     //   type: Array,
@@ -277,6 +276,7 @@ function Map(props) {
   const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to determine what kind of error
   const [freeMode, setFreeMode] = useState(false);
   const [putted, setPutted] = useState(false); // for tile before confirmed still set to active and not "latest"
+  const [finished, setFinished] = useState(false);
 
   const [descTile, setDescTile] = useState({
     q: -3,
@@ -327,6 +327,10 @@ function Map(props) {
           }
           if (login.data.data.onProgress.status === false) {
             setPutted(true);
+          }
+          if (login.data.data.completedColor.length === 6) {
+            setFinished(true);
+            setPutted(false);
           }
         })
       );
@@ -435,7 +439,14 @@ function Map(props) {
             setChangeColor({ status: true, error: "" });
             setIsLoading(false);
             setAnswerShow(true);
-            setPutted(true);
+            if (
+              user.completedColor.length >= 5 &&
+              descTile.type === "station"
+            ) {
+              setFinished(true);
+            } else {
+              setPutted(true);
+            }
           })
         )
         .catch((err) => {
@@ -500,7 +511,11 @@ function Map(props) {
       <>
         <div
           className="d-flex"
-          style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+          style={{
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <header
             style={{
@@ -517,6 +532,14 @@ function Map(props) {
               {freeMode ? <Badge>Click any tile!</Badge> : <Badge></Badge>}
             </Row>
           </header>
+          {finished ? (
+            <Winner
+              setFailShow={setFailShow}
+              setChangeColor={setChangeColor}
+            ></Winner>
+          ) : (
+            <div></div>
+          )}
           <HexGrid width={"100vw"} height={"100vh"}>
             <Layout
               size={{ x: 6, y: 6 }}
