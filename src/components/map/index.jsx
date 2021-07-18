@@ -529,7 +529,11 @@ function Map(props) {
             }}
           >
             <Row>
-              {freeMode ? <Badge>Click any tile!</Badge> : <Badge></Badge>}
+              {freeMode && !finished ? (
+                <Badge>Click any tile!</Badge>
+              ) : (
+                <Badge></Badge>
+              )}
             </Row>
           </header>
           {finished ? (

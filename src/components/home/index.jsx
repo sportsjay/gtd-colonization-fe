@@ -56,6 +56,7 @@ export default function Page(props) {
     axios.get("user/getuserprogress").then((res) => {
       setIsLoading(false);
       setLeaderboard(res.data.data);
+      console.log(res.data.data);
     });
   }, [socket]);
 
@@ -122,6 +123,7 @@ export default function Page(props) {
                     </th>
                   );
                 })}
+                <th>Win Time</th>
               </tr>
             </thead>
             <tbody>
@@ -145,6 +147,7 @@ export default function Page(props) {
                           );
                         }
                       })}
+                      <td>{leaderboard.winTime}</td>
                     </tr>
                   );
                 })

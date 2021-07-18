@@ -38,7 +38,10 @@ export function Winner(props) {
 
   return (
     <Cont>
-      <div style={{ height: "4vh", fontWeight: "bold" }}>FINAL QUESTION!!</div>
+      <div style={{ height: "10vh", fontWeight: "bold", textAlign: "center" }}>
+        CONGRATULATIONS, <br></br>YOU HAVE COMPLETED 6 STATIONS. <br></br>THIS
+        IS YOUR LAST QUESTION TO WIN IT ALL!!
+      </div>
       <div style={{ height: "5vh" }}>Question</div>
       <Form>
         <Form.Group>
