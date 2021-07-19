@@ -1,6 +1,10 @@
+svg {
+  z-index: 10;
+}
+
 svg g .hexagon {
   fill: #4499a9;
-  fill-opacity: 0.6;
+  fill-opacity: 1;
 }
 
 svg g text {
@@ -34,69 +38,34 @@ svg g.admin-og-1 .hexagon {
 
 svg g.latest .hexagon {
   fill: #5900ff;
-  fill-opacity: 0.8;
+  fill-opacity: 1;
 }
 
 svg g.red .hexagon {
-  fill: red;
-  fill-opacity: 0.8;
-}
-
-svg g.yellow .hexagon {
-  fill: rgb(255, 238, 0);
-  fill-opacity: 0.8;
+  fill: rgba(255, 0, 0, 1);
+  fill-opacity: 1;
 }
 
 svg g.blue .hexagon {
   fill: blue;
-  fill-opacity: 0.8;
+  fill-opacity: 1;
 }
 
 svg g.orange .hexagon {
   fill: orange;
-  fill-opacity: 0.8;
+  fill-opacity: 1;
 }
 
 svg g.green .hexagon {
   fill: green;
-  fill-opacity: 0.8;
+  fill-opacity: 1;
 }
 
 svg g.violet .hexagon {
   fill: violet;
-  fill-opacity: 0.8;
+  fill-opacity: 1;
 }
 
-.red {
-  fill: red;
-  background-color: red;
-  color: #353030;
-}
-.yellow {
-  fill: rgb(255, 238, 0);
-  background-color: rgb(255, 238, 0);
-  color: #3a3a27;
-}
-.blue {
-  fill: blue;
-  background-color: blue;
-  color: #c9c9c9;
-}
-.orange {
-  fill: orange;
-  background-color: orange;
-  color: #4b3e2a;
-}
-.green {
-  fill: green;
-  background-color: green;
-  color: #101411;
-}
-.violet {
-  fill: violet;
-  background-color: violet;
-  color: #3d2936;
-}
 @keyframes pulse {
   0% {
     opacity: 1;
@@ -107,4 +76,14 @@ svg g.violet .hexagon {
   100% {
     opacity: 1;
   }
+}
+
+.backgroundimg {
+  opacity: 0.2;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: auto;
+  height: 100%;
+  z-index: 0;
 }

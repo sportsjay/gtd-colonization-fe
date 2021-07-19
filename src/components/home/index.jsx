@@ -32,7 +32,7 @@ export default function Page(props) {
     { name: "", completedColor: [] },
     { name: "", completedColor: [] },
   ]);
-  const colors = ["red", "green", "blue", "yellow", "orange", "violet"];
+  const colors = ["red", "green", "blue", "orange", "violet"];
   useEffect(() => {
     setIsLoading(true);
     socket.on("leaderboardUpdate", (newData) => {
@@ -92,7 +92,10 @@ export default function Page(props) {
           )}
           <TextCard>
             <Text>For freshies, please click Viewer.</Text>
-            <Text>For MCs, please click Developer.</Text>
+            <Text>For manpower, please click Developer.</Text>
+            <Text style={{ textDecoration: "underline" }}>
+              Scroll down to see the leaderboard!
+            </Text>
           </TextCard>
           <SubCard>
             <SubSubCard>

@@ -89,8 +89,8 @@ function SuccessModal(props) {
     const links = {
       green: "https://drive.google.com/uc?id=1FW3pq2Lzw-pW_885rzW2eRIhbgExrLN1",
       red: "https://drive.google.com/uc?id=1NeSAYZ4UbeiT-ivJUoRGLG6APQXwLOw4",
-      yellow:
-        "https://drive.google.com/uc?id=1kfK-eBSr0f-x13SvoZnT2x-EfchNes8C",
+      violet:
+        "Beast of new and old are gathered. Hollow with only their traces left to tell the tale",
       orange:
         "https://drive.google.com/uc?id=1lD87a36F-4v_S7Cv5oLWWTCwKLEO4XvN",
       blue: "https://drive.google.com/uc?id=1d_E7Wz45kSX4YCcc2B0D145GZ0QW_jPo",
@@ -107,13 +107,17 @@ function SuccessModal(props) {
           <ModalTitle>{title[props.descTile.type]}</ModalTitle>
         </ModalHeader>
         <ModalBody>
-          <a target="_blank" href={props.descTile.question}>
-            <img
-              src={links[color]}
-              alt="Click this link!"
-              style={{ width: 300 }}
-            ></img>
-          </a>
+          {color === "violet" ? (
+            links[color]
+          ) : (
+            <a target="_blank" href={props.descTile.question}>
+              <img
+                src={links[color]}
+                alt="Click this link!"
+                style={{ width: 300 }}
+              ></img>
+            </a>
+          )}
         </ModalBody>
         <ModalFooter>
           <Form>
@@ -219,7 +223,7 @@ function AnswerModal(props) {
       <ModalHeader closeButton>
         <ModalTitle>
           {/* Welcome to Station {stationHandler[props.color]}!! */}
-          Answered Correctly.
+          Correct!!
         </ModalTitle>
       </ModalHeader>
     </Modal>
@@ -328,7 +332,7 @@ function Map(props) {
           if (login.data.data.onProgress.status === false) {
             setPutted(true);
           }
-          if (login.data.data.completedColor.length === 6) {
+          if (login.data.data.completedColor.length === 5) {
             setFinished(true);
             setPutted(false);
           }
@@ -440,7 +444,7 @@ function Map(props) {
             setIsLoading(false);
             setAnswerShow(true);
             if (
-              user.completedColor.length >= 5 &&
+              user.completedColor.length >= 4 &&
               descTile.type === "station"
             ) {
               setFinished(true);
@@ -510,13 +514,17 @@ function Map(props) {
     <React.Fragment>
       <>
         <div
-          className="d-flex"
           style={{
+            display: "flex",
             height: "100vh",
             display: "flex",
             flexDirection: "column",
           }}
         >
+          <img
+            src="https://drive.google.com/uc?id=1TMI0J1RWkiSu337WTA7GgAyFvnTcnnKr"
+            className="backgroundimg"
+          ></img>
           <header
             style={{
               marginTop: 80,
