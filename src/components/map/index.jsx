@@ -548,6 +548,7 @@ function Map(props) {
             <Winner
               setFailShow={setFailShow}
               setChangeColor={setChangeColor}
+              user={user}
             ></Winner>
           ) : (
             <div></div>
