@@ -163,6 +163,7 @@ function FailModal(props) {
     "color chosen doesn't match": "Please choose the highlighted tile!",
     "Still on progress":
       "You have selected a tile! Do finish it first to proceed!",
+    "have won the game": "You have won the game!",
   };
   return (
     <Modal
@@ -205,14 +206,7 @@ function LoginModal(props) {
 }
 
 function AnswerModal(props) {
-  // const stationHandler = {
-  //   red: "1",
-  //   green: "2",
-  //   blue: "3",
-  //   violet: "4",
-  //   orange: "5",
-  //   yellow: "6",
-  // };
+  console.log(props.popup);
   return (
     <Modal
       show={props.show}
@@ -221,11 +215,14 @@ function AnswerModal(props) {
       centered
     >
       <ModalHeader closeButton>
-        <ModalTitle>
-          {/* Welcome to Station {stationHandler[props.color]}!! */}
-          Correct!!
-        </ModalTitle>
+        <ModalTitle>Correct!!</ModalTitle>
       </ModalHeader>
+      <ModalBody>
+        <img src={props.popup} style={{ width: 300 }}></img>
+      </ModalBody>
+      <ModalFooter>
+        <Button onClick={props.onHide}>Close</Button>
+      </ModalFooter>
     </Modal>
   );
 }
@@ -291,6 +288,7 @@ function Map(props) {
     color: "none",
     question: "none",
     answer: "none",
+    popup: "none",
   });
 
   const answer = React.createRef();
@@ -462,7 +460,16 @@ function Map(props) {
     }
   }
   //a function to pass all the props and change every state
-  function selectedHex(event, source, owner, type, color, question, answer) {
+  function selectedHex(
+    event,
+    source,
+    owner,
+    type,
+    color,
+    question,
+    answer,
+    popup
+  ) {
     setIsLoading(true);
     const token = localStorage.getItem("token");
     const config = {
@@ -497,6 +504,7 @@ function Map(props) {
             color: color,
             question: question,
             answer: answer,
+            popup: popup,
           });
           setSuccessShow(true);
         })
@@ -596,7 +604,8 @@ function Map(props) {
                           hex.type,
                           hex.color,
                           hex.question,
-                          hex.answer
+                          hex.answer,
+                          hex.popup
                         )
                       }
                     >
@@ -620,7 +629,8 @@ function Map(props) {
                           hex.type,
                           hex.color,
                           hex.question,
-                          hex.answer
+                          hex.answer,
+                          hex.popup
                         )
                       }
                     >
@@ -654,6 +664,7 @@ function Map(props) {
             show={answerShow}
             onHide={answerClose}
             color={descTile.color}
+            popup={descTile.popup}
           ></AnswerModal>
           <Loading open={isLoading}></Loading>
         </div>
