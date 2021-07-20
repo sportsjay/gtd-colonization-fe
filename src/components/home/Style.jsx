@@ -21,7 +21,7 @@ export const TextCard = styled(Container)`
   width: 40vh;
   flex-direction: column;
   background-color: #f0ffff;
-  margin-bottom: -40px;
+  margin-bottom: -20px;
 `;
 
 export const SubCard = styled(Container)`

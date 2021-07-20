@@ -81,9 +81,10 @@ svg g.violet .hexagon {
 .backgroundimg {
   opacity: 0.2;
   position: absolute;
+  margin-top: 3vh;
   left: 0;
   top: 0;
-  width: auto;
-  height: 100%;
+  width: 100%;
+  height: auto;
   z-index: 0;
 }
