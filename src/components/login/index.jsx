@@ -18,6 +18,12 @@ export default function Page(props) {
 
   const password = React.createRef();
 
+  function handleKeyPress(target) {
+    if (target.charCode === 13) {
+      submit();
+    }
+  }
+
   function submit() {
     axios
       .post("user/login", {
@@ -50,6 +56,7 @@ export default function Page(props) {
                 aria-label="Username"
                 aria-describedby="basic-addon1"
                 ref={username}
+                onKeyPress={handleKeyPress}
               ></Form.Control>
             </Form.Group>
             <Form.Group controlId="formBasicPassword">
@@ -60,6 +67,7 @@ export default function Page(props) {
                 aria-label="Password"
                 aria-describedby="basic-addon1"
                 ref={password}
+                onKeyPress={handleKeyPress}
               ></Form.Control>
             </Form.Group>
           </Form>

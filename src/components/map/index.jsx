@@ -114,7 +114,7 @@ function SuccessModal(props) {
               <img
                 src={links[color]}
                 alt="Click this link!"
-                style={{ width: 300 }}
+                style={{ width: 470 }}
               ></img>
             </a>
           )}
@@ -218,7 +218,7 @@ function AnswerModal(props) {
         <ModalTitle>Correct!!</ModalTitle>
       </ModalHeader>
       <ModalBody>
-        <img src={props.popup} style={{ width: 300 }}></img>
+        <img src={props.popup} style={{ width: 470 }}></img>
       </ModalBody>
       <ModalFooter>
         <Button onClick={props.onHide}>Close</Button>
@@ -370,7 +370,7 @@ function Map(props) {
     const config = {
       headers: { "auth-token": token },
     };
-
+    const color = descTile.color.replace(" active", "");
     let ans = descTile.answer ? answer.current.value : ""; // to check if there is question, it will be current anwser, else empty string
     let adjcoords = []; // to store coordinates that is adjacent to current tile
 
@@ -443,7 +443,8 @@ function Map(props) {
             setAnswerShow(true);
             if (
               user.completedColor.length >= 4 &&
-              descTile.type === "station"
+              descTile.type === "station" &&
+              user.completedColor.includes(color) === false
             ) {
               setFinished(true);
             } else {
@@ -475,10 +476,13 @@ function Map(props) {
     const config = {
       headers: { "auth-token": token },
     };
+
     if (
-      HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1 ||
+      (HexUtils.distance(source.state.hex, user.onProgress.currentTile) === 1 &&
+        color !== user.name) ||
       user.onProgress.currentTile.q === null ||
-      HexUtils.equals(source.state.hex, user.onProgress.currentTile) ||
+      (HexUtils.equals(source.state.hex, user.onProgress.currentTile) &&
+        color !== user.name) ||
       freeMode
     ) {
       axios
@@ -594,7 +598,7 @@ function Map(props) {
                       s={hex.s}
                       owner={hex.owner}
                       type={hex.type}
-                      color={hex.color}
+                      color="latest"
                       className="latest"
                       onClick={(_, hexCoord) =>
                         selectedHex(
