@@ -20,6 +20,8 @@ import {
   Row,
   Badge,
 } from "react-bootstrap";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
 
 import { Winner } from "./winner";
 
@@ -232,16 +234,6 @@ function Map(props) {
   // const hexagons = GridGenerator.rectangle(30, 30);
   // Initialize States
   const [hexagons, setHexagons] = useState(); // hexagons is the local state which refers to the json data as initial data
-  let users = {
-    "admin-og-1": 0,
-    "admin-og-2": 1,
-    "admin-og-3": 2,
-    "admin-og-4": 3,
-    "admin-og-5": 4,
-    "admin-og-6": 5,
-    "admin-og-7": 6,
-    "admin-og-8": 7,
-  };
   const [user, setUser] = useState({
     name: "",
     haveAdjTile: false,
@@ -275,7 +267,7 @@ function Map(props) {
   // }); // to change users
   const [isLoading, setIsLoading] = useState(false);
   const [changeColor, setChangeColor] = useState({ status: true, error: "" }); // to determine what kind of error
-  const [freeMode, setFreeMode] = useState(false);
+  const [freeMode, setFreeMode] = useState({ free: false, time: false });
   const [putted, setPutted] = useState(false); // for tile before confirmed still set to active and not "latest"
   const [finished, setFinished] = useState(false);
 
@@ -320,12 +312,19 @@ function Map(props) {
           setIsNotLogged(false);
           setUser(login.data.data);
           // console.log(login.data.data);
-          setHexagons(map.data.data[users[login.data.data.name]].tiles);
+          for (let i = 0; i < map.data.data.length; i += 1) {
+            if (map.data.data[i].name === login.data.data.name) {
+              setHexagons(map.data.data[i].tiles);
+              break;
+            }
+          }
           setIsLoading(false);
-          if (login.data.data.haveAdjTile === false) {
-            setFreeMode(true);
-          } else {
-            setFreeMode(false);
+          if (freeMode.time === false) {
+            if (login.data.data.haveAdjTile === false) {
+              setFreeMode({ free: true, time: false });
+            } else {
+              setFreeMode({ free: false, time: false });
+            }
           }
           if (login.data.data.onProgress.status === false) {
             setPutted(true);
@@ -433,10 +432,12 @@ function Map(props) {
               color: descTile.color,
             };
             socket.emit("hexagon", data);
-            if (adjcoords.length > 0) {
-              setFreeMode(false);
-            } else {
-              setFreeMode(true);
+            if (freeMode.time === false) {
+              if (adjcoords.length > 0) {
+                setFreeMode({ free: false, time: false });
+              } else {
+                setFreeMode({ free: true, time: false });
+              }
             }
             setChangeColor({ status: true, error: "" });
             setIsLoading(false);
@@ -483,7 +484,7 @@ function Map(props) {
       user.onProgress.currentTile.q === null ||
       (HexUtils.equals(source.state.hex, user.onProgress.currentTile) &&
         color !== user.name) ||
-      freeMode
+      freeMode.free
     ) {
       axios
         .post(
@@ -522,6 +523,11 @@ function Map(props) {
       setIsLoading(false);
     }
   }
+
+  function timeLimit() {
+    setFreeMode({ time: true, free: true });
+  }
+
   return (
     <React.Fragment>
       <>
@@ -549,7 +555,12 @@ function Map(props) {
             }}
           >
             <Row>
-              {freeMode && !finished ? (
+              {freeMode.time ? (
+                <Badge bg="primary">
+                  Hurry, Click on any tile!! Don't mind the highlighted
+                  hexagons!
+                </Badge>
+              ) : freeMode.free && !finished ? (
                 <Badge>Click any tile!</Badge>
               ) : (
                 <Badge></Badge>
@@ -563,7 +574,13 @@ function Map(props) {
               user={user}
             ></Winner>
           ) : (
-            <div></div>
+            <Navbar className="justify-content-end" fixed="bottom">
+              <Nav>
+                <Nav.Link onClick={timeLimit}>
+                  <i class="fas fa-clock"></i>
+                </Nav.Link>
+              </Nav>
+            </Navbar>
           )}
           <HexGrid width={"100vw"} height={"100vh"}>
             <Layout
@@ -644,6 +661,15 @@ function Map(props) {
                         <Text></Text>
                       )}
                     </StyledHex>
+                    // return (
+                    //   <StyledHex
+                    //     q={hex.q}
+                    //     r={hex.r}
+                    //     s={hex.s}
+                    //     className={hex.color}
+                    //   >
+                    //     <Text style={diff.style}>{diff.text}</Text>
+                    //   </StyledHex>
                   );
                 })
               ) : (

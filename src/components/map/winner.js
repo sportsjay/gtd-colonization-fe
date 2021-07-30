@@ -30,7 +30,7 @@ export function Winner(props) {
     <>
       <Cont>
         <div
-          style={{ height: "10vh", fontWeight: "bold", textAlign: "center" }}
+          style={{ height: "13vh", fontWeight: "bold", textAlign: "center" }}
         >
           CONGRATULATIONS, <br></br>YOU HAVE COMPLETED 5 STATIONS. <br></br>
           HERE IS A CLUE TO THE PANDORA'S BOX!!

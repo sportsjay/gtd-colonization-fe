@@ -22,21 +22,47 @@ export default function Page(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState({ name: "" });
-  const [leaderboard, setLeaderboard] = useState([
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-    { name: "", completedColor: [] },
-  ]);
+  const [leaderboard, setLeaderboard] = useState({
+    "admin-og-1": { name: "admin-og-1", completedColor: [], winTime: "" },
+    "admin-og-2": { name: "admin-og-2", completedColor: [], winTime: "" },
+    "admin-og-3": { name: "admin-og-3", completedColor: [], winTime: "" },
+    "admin-og-4": { name: "admin-og-4", completedColor: [], winTime: "" },
+    "admin-og-5": { name: "admin-og-5", completedColor: [], winTime: "" },
+    "admin-og-6": { name: "admin-og-6", completedColor: [], winTime: "" },
+    "admin-og-7": { name: "admin-og-7", completedColor: [], winTime: "" },
+    "admin-og-8": { name: "admin-og-8", completedColor: [], winTime: "" },
+  });
+  const names = [
+    "admin-og-1",
+    "admin-og-2",
+    "admin-og-3",
+    "admin-og-4",
+    "admin-og-5",
+    "admin-og-6",
+    "admin-og-7",
+    "admin-og-8",
+  ];
   const colors = ["red", "green", "blue", "orange", "violet"];
   useEffect(() => {
     setIsLoading(true);
     socket.on("leaderboardUpdate", (newData) => {
-      setLeaderboard(newData.data);
+      let data = {
+        "admin-og-1": { name: "admin-og-1", completedColor: [], winTime: "" },
+        "admin-og-2": { name: "admin-og-2", completedColor: [], winTime: "" },
+        "admin-og-3": { name: "admin-og-3", completedColor: [], winTime: "" },
+        "admin-og-4": { name: "admin-og-4", completedColor: [], winTime: "" },
+        "admin-og-5": { name: "admin-og-5", completedColor: [], winTime: "" },
+        "admin-og-6": { name: "admin-og-6", completedColor: [], winTime: "" },
+        "admin-og-7": { name: "admin-og-7", completedColor: [], winTime: "" },
+        "admin-og-8": { name: "admin-og-8", completedColor: [], winTime: "" },
+      };
+      console.log(newData.data);
+      for (let i = 0; i < newData.data.length; i += 1) {
+        data[newData.data[i].name].completedColor =
+          newData.data[i].completedColor;
+        data[newData.data[i].name].winTime = newData.data[i].winTime;
+      }
+      setLeaderboard(data);
     });
     const token = localStorage.getItem("token");
     if (token) {
@@ -55,7 +81,22 @@ export default function Page(props) {
     }
     axios.get("user/getuserprogress").then((res) => {
       setIsLoading(false);
-      setLeaderboard(res.data.data);
+      let data = {
+        "admin-og-1": { name: "admin-og-1", completedColor: [], winTime: "" },
+        "admin-og-2": { name: "admin-og-2", completedColor: [], winTime: "" },
+        "admin-og-3": { name: "admin-og-3", completedColor: [], winTime: "" },
+        "admin-og-4": { name: "admin-og-4", completedColor: [], winTime: "" },
+        "admin-og-5": { name: "admin-og-5", completedColor: [], winTime: "" },
+        "admin-og-6": { name: "admin-og-6", completedColor: [], winTime: "" },
+        "admin-og-7": { name: "admin-og-7", completedColor: [], winTime: "" },
+        "admin-og-8": { name: "admin-og-8", completedColor: [], winTime: "" },
+      };
+      for (let i = 0; i < res.data.data.length; i += 1) {
+        data[res.data.data[i].name].completedColor =
+          res.data.data[i].completedColor;
+        data[res.data.data[i].name].winTime = res.data.data[i].winTime;
+      }
+      setLeaderboard(data);
       console.log(res.data.data);
     });
   }, [socket]);
@@ -130,33 +171,29 @@ export default function Page(props) {
               </tr>
             </thead>
             <tbody>
-              {leaderboard ? (
-                leaderboard.map((leaderboard) => {
-                  return (
-                    <tr>
-                      <td>{leaderboard.name}</td>
-                      {colors.map((colors) => {
-                        if (leaderboard.completedColor.includes(colors)) {
-                          return (
-                            <td>
-                              <i class="fas fa-check" />
-                            </td>
-                          );
-                        } else {
-                          return (
-                            <td>
-                              <i class="fas fa-times" />
-                            </td>
-                          );
-                        }
-                      })}
-                      <td>{leaderboard.winTime}</td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <p>Nothing here!</p>
-              )}
+              {names.map((names) => {
+                return (
+                  <tr>
+                    <td>{leaderboard[names].name}</td>
+                    {colors.map((colors) => {
+                      if (leaderboard[names].completedColor.includes(colors)) {
+                        return (
+                          <td>
+                            <i class="fas fa-check" />
+                          </td>
+                        );
+                      } else {
+                        return (
+                          <td>
+                            <i class="fas fa-times" />
+                          </td>
+                        );
+                      }
+                    })}
+                    <td>{leaderboard[names].winTime}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </Table>
         </Card>

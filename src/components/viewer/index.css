@@ -1,6 +1,8 @@
 svg g .hexagon {
-  fill: #4499a9;
-  fill-opacity: 0.6;
+  fill: #d1d1d1;
+  fill-opacity: 0.9;
+  transition: ease-out 0.1s;
+  filter: brightness(0.8);
 }
 
 svg g.zonk .hexagon {
@@ -11,13 +13,6 @@ svg g.active .hexagon {
   animation-duration: 2s;
   animation-name: pulse;
   animation-iteration-count: infinite;
-}
-
-svg g.admin-og-1 .hexagon {
-  fill: #d1d1d1;
-  fill-opacity: 0.9;
-  transition: ease-out 0.1s;
-  filter: brightness(0.8);
 }
 
 svg g.red .hexagon {

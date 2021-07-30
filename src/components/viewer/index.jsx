@@ -15,16 +15,16 @@ function StyledHex(props) {
 // Viewers
 export default function ViewerPage(props) {
   const socket = useContext(SocketContext);
-  const [maps, setMaps] = useState([
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-    { tiles: [], name: "" },
-  ]);
+  const [maps, setMaps] = useState({
+    "admin-og-1": { tiles: [], name: "" },
+    "admin-og-2": { tiles: [], name: "" },
+    "admin-og-3": { tiles: [], name: "" },
+    "admin-og-4": { tiles: [], name: "" },
+    "admin-og-5": { tiles: [], name: "" },
+    "admin-og-6": { tiles: [], name: "" },
+    "admin-og-7": { tiles: [], name: "" },
+    "admin-og-8": { tiles: [], name: "" },
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
 
@@ -33,24 +33,35 @@ export default function ViewerPage(props) {
 
   const [descTile, setDescTile] = useState();
 
-  let users = {
-    "admin-og-1": 0,
-    "admin-og-2": 1,
-    "admin-og-3": 2,
-    "admin-og-4": 3,
-    "admin-og-5": 4,
-    "admin-og-6": 5,
-    "admin-og-7": 6,
-    "admin-og-8": 7,
-  };
+  let users = [
+    "admin-og-1",
+    "admin-og-2",
+    "admin-og-3",
+    "admin-og-4",
+    "admin-og-5",
+    "admin-og-6",
+    "admin-og-7",
+    "admin-og-8",
+  ];
 
   useEffect(() => {
     setIsLoading(true);
     socket.on("mapUpdate", (newData) => {
       const _maps = newData.data;
-      console.log(_maps);
-      // data[users[newData.user]].tiles = newData.grid;
-      setMaps(_maps);
+      let data = {
+        "admin-og-1": { tiles: [], name: "admin-og-1" },
+        "admin-og-2": { tiles: [], name: "admin-og-2" },
+        "admin-og-3": { tiles: [], name: "admin-og-3" },
+        "admin-og-4": { tiles: [], name: "admin-og-4" },
+        "admin-og-5": { tiles: [], name: "admin-og-5" },
+        "admin-og-6": { tiles: [], name: "admin-og-6" },
+        "admin-og-7": { tiles: [], name: "admin-og-7" },
+        "admin-og-8": { tiles: [], name: "admin-og-8" },
+      };
+      for (let i = 0; i < _maps.length; i += 1) {
+        data[_maps[i].name].tiles = _maps[i].tiles;
+      }
+      setMaps(data);
     });
     const token = localStorage.getItem("token");
     console.log(token);
@@ -58,7 +69,20 @@ export default function ViewerPage(props) {
       headers: { "auth-token": token },
     };
     axios.get("map/").then((res) => {
-      setMaps(res.data.data);
+      let data = {
+        "admin-og-1": { tiles: [], name: "admin-og-1" },
+        "admin-og-2": { tiles: [], name: "admin-og-2" },
+        "admin-og-3": { tiles: [], name: "admin-og-3" },
+        "admin-og-4": { tiles: [], name: "admin-og-4" },
+        "admin-og-5": { tiles: [], name: "admin-og-5" },
+        "admin-og-6": { tiles: [], name: "admin-og-6" },
+        "admin-og-7": { tiles: [], name: "admin-og-7" },
+        "admin-og-8": { tiles: [], name: "admin-og-8" },
+      };
+      for (let i = 0; i < res.data.data.length; i += 1) {
+        data[res.data.data[i].name].tiles = res.data.data[i].tiles;
+      }
+      setMaps(data);
       setIsLoading(false);
     });
     if (token) {
@@ -135,13 +159,15 @@ export default function ViewerPage(props) {
         style={{ marginTop: "80px" }}
       >
         {maps
-          ? maps.map((layout) => {
+          ? users.map((layout) => {
               return (
                 <div
                   className="flex-column text-center"
-                  onClick={() => selectedHex(layout.tiles)}
+                  onClick={() => selectedHex(maps[layout].tiles)}
                 >
-                  <p style={{ marginBottom: "-6vh" }}>Group {layout.name}</p>
+                  <p style={{ marginBottom: "-6vh" }}>
+                    Group {maps[layout].name}
+                  </p>
                   <HexGrid width="50vw" height="50vh">
                     <Layout
                       size={{ x: 7, y: 7 }}
@@ -149,7 +175,7 @@ export default function ViewerPage(props) {
                       spacing={1.02}
                       origin={{ x: 0, y: 0 }}
                     >
-                      {layout.tiles.map((hex, i) => {
+                      {maps[layout].tiles.map((hex, i) => {
                         return (
                           <StyledHex
                             key={i}
