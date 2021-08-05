@@ -89,13 +89,13 @@ function SuccessModal(props) {
     );
   } else if (props.descTile.type === "station") {
     const links = {
-      green: "https://drive.google.com/uc?id=1FW3pq2Lzw-pW_885rzW2eRIhbgExrLN1",
-      red: "https://drive.google.com/uc?id=1NeSAYZ4UbeiT-ivJUoRGLG6APQXwLOw4",
+      green: "https://drive.google.com/uc?id=1r7pGYPVvZ2A-s4d8hRP6MN3b0_6XmkL2",
+      red: "https://drive.google.com/uc?id=1OgNU7gLpqC6ftYhcF9jApzjDhkrBUJNI",
       violet:
         "Beast of new and old are gathered. Hollow with only their traces left to tell the tale",
       orange:
-        "https://drive.google.com/uc?id=1lD87a36F-4v_S7Cv5oLWWTCwKLEO4XvN",
-      blue: "https://drive.google.com/uc?id=1d_E7Wz45kSX4YCcc2B0D145GZ0QW_jPo",
+        "https://drive.google.com/uc?id=1s-FK4Jhj56Rnx2gKSqytOHl_cew0ggLy",
+      blue: "https://drive.google.com/uc?id=1oMGbNZmb72yNADCNFXeeyNGo5gnSOjG_",
     };
     const color = props.descTile.color.replace(" active", "");
     return (
@@ -617,9 +617,9 @@ function Map(props) {
                       type={hex.type}
                       color="latest"
                       className="latest"
-                      onClick={(_, hexCoord) =>
+                      onClick={(event, hexCoord) =>
                         selectedHex(
-                          _,
+                          event,
                           hexCoord,
                           hex.owner,
                           hex.type,
@@ -642,9 +642,9 @@ function Map(props) {
                       type={hex.type}
                       color={hex.color}
                       className={hex.color}
-                      onClick={(_, hexCoord) =>
+                      onClick={(event, hexCoord) =>
                         selectedHex(
-                          _,
+                          event,
                           hexCoord,
                           hex.owner,
                           hex.type,
@@ -668,7 +668,7 @@ function Map(props) {
                     //     s={hex.s}
                     //     className={hex.color}
                     //   >
-                    //     <Text style={diff.style}>{diff.text}</Text>
+                    //     <Text>{diff}</Text>
                     //   </StyledHex>
                   );
                 })
