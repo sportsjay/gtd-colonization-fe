@@ -88,15 +88,15 @@ function SuccessModal(props) {
       </Modal>
     );
   } else if (props.descTile.type === "station") {
-    const links = {
-      green: "https://drive.google.com/uc?id=1r7pGYPVvZ2A-s4d8hRP6MN3b0_6XmkL2",
-      red: "https://drive.google.com/uc?id=1OgNU7gLpqC6ftYhcF9jApzjDhkrBUJNI",
-      violet:
-        "Beast of new and old are gathered. Hollow with only their traces left to tell the tale",
-      orange:
-        "https://drive.google.com/uc?id=1s-FK4Jhj56Rnx2gKSqytOHl_cew0ggLy",
-      blue: "https://drive.google.com/uc?id=1oMGbNZmb72yNADCNFXeeyNGo5gnSOjG_",
-    };
+    // const links = {
+    //   green: "https://drive.google.com/uc?id=1r7pGYPVvZ2A-s4d8hRP6MN3b0_6XmkL2",
+    //   red: "https://drive.google.com/uc?id=1OgNU7gLpqC6ftYhcF9jApzjDhkrBUJNI",
+    //   violet:
+    //     "Beast of new and old are gathered. Hollow with only their traces left to tell the tale",
+    //   orange:
+    //     "https://drive.google.com/uc?id=1s-FK4Jhj56Rnx2gKSqytOHl_cew0ggLy",
+    //   blue: "https://drive.google.com/uc?id=1oMGbNZmb72yNADCNFXeeyNGo5gnSOjG_",
+    // };
     const color = props.descTile.color.replace(" active", "");
     return (
       <Modal
@@ -110,11 +110,11 @@ function SuccessModal(props) {
         </ModalHeader>
         <ModalBody>
           {color === "violet" ? (
-            links[color]
+            props.descTile.question
           ) : (
             <a target="_blank" href={props.descTile.question}>
               <img
-                src={links[color]}
+                src={props.descTile.question}
                 alt="Click this link!"
                 style={{ width: 470 }}
               ></img>
